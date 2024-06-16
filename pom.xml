@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>mee_timed</name>
+    <groupId>com.mee</groupId>
+    <artifactId>mee_timed_parent</artifactId>
+    <version>1.0.1</version>
+    <packaging>pom</packaging>
+    <developers>
+        <developer>
+            <id>shadow</id>
+            <name>shadow</name>
+            <email>funnyzpc@gmail.com</email>
+        </developer>
+    </developers>
+    <modules>
+        <module>mee_timed</module>
+
+        <!-- shedlock -->
+        <module>shedlock/shedlock-core</module>
+        <module>shedlock/shedlock-spring</module>
+        <module>shedlock/shedlock-provider-jdbc-template</module>
+        <module>shedlock/shedlock-springboot-test</module>
+        <module>shedlock/shedlock-testng-test</module>
+        <module>shedlock/shedlock-test-support-jdbc</module>
+        <module>shedlock/shedlock-test-support</module>
+
+
+    </modules>
+    <!-- 版本配置 -->
+    <properties>
+        <mee.version>1.0.1</mee.version>
+        <java.version>8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.compilerVersion>8</maven.compiler.compilerVersion>
+        <shedlock.version>4.47.0</shedlock.version>
+        <logback.version>1.2.11</logback.version>
+        <spring.version>5.3.22</spring.version>
+        <spring-boot-current.version>2.7.3</spring-boot-current.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <junit.version>5.8.2</junit.version>
+        <assertj.version>3.23.1</assertj.version>
+        <test-containers.version>1.17.3</test-containers.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <mockito.version>4.8.0</mockito.version>
+
+    </properties>
+    <build>
+        <plugins>
+            <!-- 指定jdk版本 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <!-- 跳过单元测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

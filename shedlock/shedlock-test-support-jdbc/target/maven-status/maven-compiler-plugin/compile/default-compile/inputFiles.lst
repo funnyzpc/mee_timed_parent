@@ -1,0 +1,14 @@
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/PostgresConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/AbstractContainerBasedDbConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/H2Config.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/Db2ServerConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/MsSqlServerConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/AbstractDbConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/DbConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/MariaDbConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/JdbcTestUtils.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/MySqlConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/TransactionalFuzzTester.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/HsqlConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/OracleServerConfig.java
+/Users/shadow/self/mee_timed/shedlock/shedlock-test-support-jdbc/src/main/java/net/javacrumbs/shedlock/test/support/jdbc/AbstractJdbcLockProviderIntegrationTest.java

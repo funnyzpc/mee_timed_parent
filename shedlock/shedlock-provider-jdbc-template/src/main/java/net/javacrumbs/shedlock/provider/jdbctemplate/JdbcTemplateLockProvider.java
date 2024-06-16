@@ -1,0 +1,353 @@
+/**
+ * Copyright 2009 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.javacrumbs.shedlock.provider.jdbctemplate;
+
+import net.javacrumbs.shedlock.support.StorageBasedLockProvider;
+import net.javacrumbs.shedlock.support.Utils;
+import net.javacrumbs.shedlock.support.annotation.NonNull;
+import net.javacrumbs.shedlock.support.annotation.Nullable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
+import java.util.TimeZone;
+
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Lock provided by JdbcTemplate. It uses a table that contains lock_name and locked_until.
+ * <ol>
+ * <li>
+ * Attempts to insert a new lock record. Since lock name is a primary key, it fails if the record already exists. As an optimization,
+ * we keep in-memory track of created  lock records.
+ * </li>
+ * <li>
+ * If the insert succeeds (1 inserted row) we have the lock.
+ * </li>
+ * <li>
+ * If the insert failed due to duplicate key or we have skipped the insertion, we will try to update lock record using
+ * UPDATE tableName SET lock_until = :lockUntil WHERE name = :lockName AND lock_until &lt;= :now
+ * </li>
+ * <li>
+ * If the update succeeded (1 updated row), we have the lock. If the update failed (0 updated rows) somebody else holds the lock
+ * </li>
+ * <li>
+ * When unlocking, lock_until is set to now.
+ * </li>
+ * </ol>
+ */
+public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
+
+    private static final String DEFAULT_TABLE_NAME = "shedlock";
+
+    public JdbcTemplateLockProvider(@NonNull JdbcTemplate jdbcTemplate) {
+        this(jdbcTemplate, (PlatformTransactionManager) null);
+    }
+
+    public JdbcTemplateLockProvider(@NonNull JdbcTemplate jdbcTemplate, @Nullable PlatformTransactionManager transactionManager) {
+        this(jdbcTemplate, transactionManager, DEFAULT_TABLE_NAME);
+    }
+
+    public JdbcTemplateLockProvider(@NonNull JdbcTemplate jdbcTemplate, @NonNull String tableName) {
+        this(jdbcTemplate, null, tableName);
+    }
+
+    public JdbcTemplateLockProvider(@NonNull DataSource dataSource) {
+        this(new JdbcTemplate(dataSource));
+    }
+
+    public JdbcTemplateLockProvider(@NonNull DataSource dataSource, @NonNull String tableName) {
+        this(new JdbcTemplate(dataSource), tableName);
+    }
+
+    public JdbcTemplateLockProvider(@NonNull JdbcTemplate jdbcTemplate, @Nullable PlatformTransactionManager transactionManager, @NonNull String tableName) {
+        this(Configuration.builder()
+            .withJdbcTemplate(jdbcTemplate)
+            .withTransactionManager(transactionManager)
+            .withTableName(tableName)
+            .build()
+        );
+    }
+
+    public JdbcTemplateLockProvider(@NonNull Configuration configuration) {
+        super(new JdbcTemplateStorageAccessor(configuration));
+    }
+
+    public static final class Configuration {
+        private final JdbcTemplate jdbcTemplate;
+        private final PlatformTransactionManager transactionManager;
+        private final String tableName;
+        private final String tableAppName;
+        private final TimeZone timeZone;
+        private final ColumnNames columnNames;
+        private final AppColumnNames appColumnNames;
+        private final String lockedByValue;
+        private final boolean useDbTime;
+        private final Integer isolationLevel;
+        // add
+        private final boolean hasAppTable;
+
+        Configuration(
+            @NonNull JdbcTemplate jdbcTemplate,
+            @Nullable PlatformTransactionManager transactionManager,
+            @NonNull String tableName,
+            @NonNull String tableAppName,
+            @Nullable TimeZone timeZone,
+            @NonNull ColumnNames columnNames,
+            @NonNull AppColumnNames appColumnNames,
+            @NonNull String lockedByValue,
+            boolean useDbTime,
+            @Nullable Integer isolationLevel) {
+
+            this.jdbcTemplate = requireNonNull(jdbcTemplate, "jdbcTemplate can not be null");
+            this.transactionManager = transactionManager;
+            this.tableName = requireNonNull(tableName, "tableName can not be null");
+            // 可以为null
+            this.tableAppName = tableAppName;
+            this.timeZone = timeZone;
+            this.columnNames = requireNonNull(columnNames, "columnNames can not be null");
+            this.appColumnNames =appColumnNames;
+            this.lockedByValue = requireNonNull(lockedByValue, "lockedByValue can not be null");
+            this.isolationLevel = isolationLevel;
+            if (useDbTime && timeZone != null) {
+                throw new IllegalArgumentException("Can not set both useDbTime and timeZone");
+            }
+            this.useDbTime = useDbTime;
+            // add
+            this.hasAppTable=!(null == this.tableAppName || "".equals(this.tableAppName.trim()));
+        }
+
+        public JdbcTemplate getJdbcTemplate() {
+            return jdbcTemplate;
+        }
+
+        public PlatformTransactionManager getTransactionManager() {
+            return transactionManager;
+        }
+
+        public String getTableName() {
+            return tableName;
+        }
+
+        public String getTableAppName() {
+            return tableAppName;
+        }
+
+        public TimeZone getTimeZone() {
+            return timeZone;
+        }
+
+        public ColumnNames getColumnNames() {
+            return columnNames;
+        }
+
+        public AppColumnNames getAppColumnNames() {
+            return appColumnNames;
+        }
+
+        public String getLockedByValue() {
+            return lockedByValue;
+        }
+
+        public boolean getUseDbTime() {
+            return useDbTime;
+        }
+
+        public Integer getIsolationLevel() {
+            return isolationLevel;
+        }
+
+        public boolean getHasAppTable() {
+            return hasAppTable;
+        }
+
+        public static Configuration.Builder builder() {
+            return new Configuration.Builder();
+        }
+
+
+        public static final class Builder {
+            private JdbcTemplate jdbcTemplate;
+            private PlatformTransactionManager transactionManager;
+            private String tableName = DEFAULT_TABLE_NAME;
+            private String tableAppName;
+            private TimeZone timeZone;
+            private String lockedByValue = Utils.getHostname();
+            private ColumnNames columnNames = new ColumnNames("name", "lock_until", "locked_at", "locked_by");
+            private AppColumnNames appColumnNames = new AppColumnNames("application", "host_ip", "host_name", "state","update_time");
+            private boolean useDbTime = false;
+            private Integer isolationLevel;
+
+            public Builder withJdbcTemplate(@NonNull JdbcTemplate jdbcTemplate) {
+                this.jdbcTemplate = jdbcTemplate;
+                return this;
+            }
+
+            public Builder withTransactionManager(PlatformTransactionManager transactionManager) {
+                this.transactionManager = transactionManager;
+                return this;
+            }
+
+            public Builder withTableName(@NonNull String tableName) {
+                this.tableName = tableName;
+                return this;
+            }
+            public Builder withTableAppName(@NonNull String tableAppName){
+                this.tableAppName = tableAppName;
+                return this;
+            }
+
+            public Builder withTimeZone(TimeZone timeZone) {
+                this.timeZone = timeZone;
+                return this;
+            }
+
+            public Builder withColumnNames(ColumnNames columnNames) {
+                this.columnNames = columnNames;
+                return this;
+            }
+
+            /**
+             * Value stored in 'locked_by' column. Please use only for debugging purposes.
+             */
+            public Builder withLockedByValue(String lockedBy) {
+                this.lockedByValue = lockedBy;
+                return this;
+            }
+
+            public Builder usingDbTime() {
+                this.useDbTime = true;
+                return this;
+            }
+
+            /**
+             * Sets the isolation level for ShedLock. See {@link java.sql.Connection} for constant definitions.
+             * for constant definitions
+             */
+            public Builder withIsolationLevel(int isolationLevel) {
+                this.isolationLevel = isolationLevel;
+                return this;
+            }
+
+            public JdbcTemplateLockProvider.Configuration build() {
+                return new JdbcTemplateLockProvider.Configuration(jdbcTemplate, transactionManager, tableName, tableAppName, timeZone, columnNames, appColumnNames,lockedByValue, useDbTime, isolationLevel);
+            }
+        }
+
+    }
+
+    public static final class ColumnNames {
+        private final String name;
+        private final String lockUntil;
+        private final String lockedAt;
+        private final String lockedBy;
+
+        /***** 扩展参数 *****/
+        // application 也即 schedName
+        private final String application;
+        private final String hostIP;
+        private final String state;
+        private final String updateTime;
+
+        public ColumnNames(String name, String lockUntil, String lockedAt, String lockedBy) {
+            this.name = requireNonNull(name, "'name' column name can not be null");
+            this.lockUntil = requireNonNull(lockUntil, "'lockUntil' column name can not be null");
+            this.lockedAt = requireNonNull(lockedAt, "'lockedAt' column name can not be null");
+            this.lockedBy = requireNonNull(lockedBy, "'lockedBy' column name can not be null");
+            this.application = "application";
+            this.hostIP = "host_ip";
+            this.state = "state";
+            this.updateTime = "update_time";
+        }
+        public ColumnNames(String name, String lockUntil, String lockedAt, String lockedBy,String application, String hostIP, String state,String updateTime) {
+            this.name = requireNonNull(name, "'name' column name can not be null");
+            this.lockUntil = requireNonNull(lockUntil, "'lockUntil' column name can not be null");
+            this.lockedAt = requireNonNull(lockedAt, "'lockedAt' column name can not be null");
+            this.lockedBy = requireNonNull(lockedBy, "'lockedBy' column name can not be null");
+            this.application = application;
+            this.hostIP = hostIP;
+            this.state = state;
+            this.updateTime = updateTime;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getLockUntil() {
+            return lockUntil;
+        }
+
+        public String getLockedAt() {
+            return lockedAt;
+        }
+
+        public String getLockedBy() {
+            return lockedBy;
+        }
+
+        public String getApplication() {
+            return application;
+        }
+        public String getHostIP() {
+            return hostIP;
+        }
+        public String getState() {
+            return state;
+        }
+
+        public String getUpdateTime() {
+            return updateTime;
+        }
+    }
+
+    public static final class AppColumnNames {
+        private final String application;
+        private final String hostIP;
+        private final String hostName;
+        private final String state;
+        private final String updateTime;
+
+        public AppColumnNames(String application, String hostIP, String hostName, String state, String updateTime) {
+            this.application=application;
+            this.hostIP=hostIP;
+            this.hostName=hostName;
+            this.state=state;
+            this.updateTime=updateTime;
+        }
+
+        public String getApplication() {
+            return application;
+        }
+
+        public String getHostIP() {
+            return hostIP;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public String getUpdateTime() {
+            return updateTime;
+        }
+    }
+
+}
