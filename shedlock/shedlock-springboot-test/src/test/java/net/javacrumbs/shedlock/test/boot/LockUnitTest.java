@@ -22,6 +22,6 @@ public class LockUnitTest {
     @Test
     public void shouldWork() {
         LockAssert.TestHelper.makeAllAssertsPass(true);
-        new ScheduledTasks().reportCurrentTime();
+        new ScheduledTasksImpl().reportCurrentTime();
     }
 }

@@ -16,7 +16,6 @@
 package net.javacrumbs.shedlock.provider.jdbctemplate;
 
 import net.javacrumbs.shedlock.core.LockConfiguration;
-import net.javacrumbs.shedlock.support.Utils;
 import net.javacrumbs.shedlock.support.annotation.NonNull;
 
 import java.util.Date;
@@ -58,8 +57,8 @@ class MySqlServerTimeStatementsSource extends SqlStatementsSource {
         // INSERT INTO SYS_SHEDLOCK_APP(application, host_ip, host_name, state, update_time)
         // VALUES('shedlock-springboot-test', '127.0.0.1', 'MEE23120004', '1', CURRENT_TIMESTAMP)
         // ON DUPLICATE KEY update host_name=values(host_name), update_time = values(update_time)
-        return "INSERT INTO " + tableAppName() + "(" +application()+ ", "+ hostIP() + ", " +hostName()+", "+ state() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, CURRENT_TIMESTAMP)" +
-            " ON DUPLICATE KEY UPDATE  " + hostName()+" = VALUES("+hostName()+") , "+appUpdateTime() + " = VALUES("+appUpdateTime()+") ";
+        return "INSERT INTO " + appTableName() + "(" +appApplication()+ ", "+ appHostIP() + ", " +appHostName()+", "+ appState() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, CURRENT_TIMESTAMP)" +
+            " ON DUPLICATE KEY UPDATE  " + appHostName()+" = VALUES("+appHostName()+") , "+appUpdateTime() + " = VALUES("+appUpdateTime()+") ";
     }
 //    @NonNull
 //    private String updateAppClause() {
@@ -104,9 +103,9 @@ class MySqlServerTimeStatementsSource extends SqlStatementsSource {
         params.put("lockAtLeastForMicros", lockConfiguration.getLockAtLeastFor().toNanos() / 1_000);
         // add
         params.put("application", LockConfiguration.getSchedName());
-        params.put("hostIP", Utils.getHostaddress());
-        params.put("hostName", configuration.getLockedByValue());
-        params.put("state","1");
+        params.put("hostIP", configuration.getHostIP());
+        params.put("hostName", configuration.getHostName());
+        params.put("state",configuration.getState());
         params.put("updateTime",new Date());
         return params;
     }

@@ -57,13 +57,13 @@ class OracleServerTimeStatementsSource extends SqlStatementsSource {
         //     UPDATE SET T.host_name = TT.host_name ,T.update_time = TT.update_time ,
         // WHEN NOT MATCHED THEN
         //     INSERT (application,host_ip ,host_name,state,update_time ) VALUES ( TT.application,TT.host_ip ,TT.host_name,TT.state,TT.update_time );
-        return "MERGE INTO "+tableAppName()+" T \n" +
-            "USING ( SELECT :application AS "+application()+",:hostIP AS "+hostIP()+" ,:hostName AS "+hostName()+",:state AS "+state()+", "+now+" AS "+appUpdateTime()+" FROM DUAL ) TT \n" +
-            "ON (T."+application()+" = TT."+application()+" AND T."+hostIP()+" = TT."+hostIP()+" ) \n" +
+        return "MERGE INTO "+ appTableName()+" T \n" +
+            "USING ( SELECT :application AS "+appApplication()+",:hostIP AS "+appHostIP()+" ,:hostName AS "+appHostName()+",:state AS "+appState()+", "+now+" AS "+appUpdateTime()+" FROM DUAL ) TT \n" +
+            "ON (T."+appApplication()+" = TT."+appApplication()+" AND T."+appHostIP()+" = TT."+appHostIP()+" ) \n" +
             "WHEN MATCHED THEN \n" +
-            "    UPDATE SET T."+hostName()+" = TT."+hostName()+" ,T."+appUpdateTime()+" = TT."+appUpdateTime()+"  \n" +
+            "    UPDATE SET T."+appHostName()+" = TT."+appHostName()+" ,T."+appUpdateTime()+" = TT."+appUpdateTime()+"  \n" +
             "WHEN NOT MATCHED THEN \n" +
-            "    INSERT ("+application()+","+hostIP()+","+hostName()+","+state()+","+appUpdateTime()+" ) VALUES ( TT."+application()+",TT."+hostIP()+" ,TT."+hostName()+",TT."+state()+",TT."+appUpdateTime()+" )";
+            "    INSERT ("+appApplication()+","+appHostIP()+","+appHostName()+","+appState()+","+appUpdateTime()+" ) VALUES ( TT."+appApplication()+",TT."+appHostIP()+" ,TT."+appHostName()+",TT."+appState()+",TT."+appUpdateTime()+" )";
 //        return "INSERT INTO " + tableAppName() + "(" +application()+ ", "+ hostIP() + ", " +hostName()+", "+ state() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, SYSTIMESTAMP(0)";
     }
 

@@ -46,6 +46,7 @@ public final class Configuration {
     private Integer isolationLevel;
 //    // add
 //    private final boolean hasAppTable=false;
+    private final String state="1";
 
     // 最长锁定时间
     private Duration defaultMostFor=Duration.ofMinutes(1);
@@ -241,6 +242,10 @@ public final class Configuration {
     public Configuration setDefaultLeastFor(Duration defaultLeastFor) {
         this.defaultLeastFor = defaultLeastFor;
         return this;
+    }
+
+    public String getState() {
+        return state;
     }
 
     public static enum LockedTypeEnum{

@@ -1,7 +1,5 @@
 package net.javacrumbs.shedlock.core;
 
-import net.javacrumbs.shedlock.core.LockExtender.LockCanNotBeExtendedException;
-import net.javacrumbs.shedlock.core.LockExtender.NoActiveLockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,12 +61,12 @@ class LockExtenderTest {
         Runnable task = () -> LockExtender.extendActiveLock(extendBy, ZERO);
 
         assertThatThrownBy(() -> executor.executeWithLock(task, configuration))
-            .isInstanceOf(LockCanNotBeExtendedException.class);
+            .isInstanceOf(LockExtender.LockExtensionException.class);
     }
 
     @Test
     void shouldFailIfNoActiveLock() {
         assertThatThrownBy(() -> LockExtender.extendActiveLock(ofSeconds(1), ofSeconds(0)))
-            .isInstanceOf(NoActiveLockException.class);
+            .isInstanceOf(LockExtender.LockExtensionException.class);
     }
 }

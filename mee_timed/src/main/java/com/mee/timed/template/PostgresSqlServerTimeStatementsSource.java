@@ -27,9 +27,9 @@ class PostgresSqlServerTimeStatementsSource extends SqlStatementsSource {
     @Override
     String getAppInsertStatement() {
         // INSERT INTO SYS_SHEDLOCK_APP(application, host_ip, host_name, state, create_time) VALUES(:application, :hostIp, :hostName :state, CURRENT_TIMESTAMP) ON CONFLICT (name) DO UPDATE SET lock_until = timezone('utc', CURRENT_TIMESTAMP) + cast(:lockAtMostForInterval as interval), locked_at = timezone('utc', CURRENT_TIMESTAMP), locked_by = :lockedBy WHERE shedlock.name = :name AND shedlock.lock_until <= timezone('utc', CURRENT_TIMESTAMP)
-        return "INSERT INTO " + tableAppName() + "(" +application()+ ", "+ hostIP() + ", " +hostName()+", "+ state() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, CURRENT_TIMESTAMP)" +
+        return "INSERT INTO " + appTableName() + "(" +appApplication()+ ", "+ appHostIP() + ", " +appHostName()+", "+ appState() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, CURRENT_TIMESTAMP)" +
 //            " ON CONFLICT (" + application()+", "+hostIP() + ") DO UPDATE " + updateAppClause();
-            " ON CONFLICT (" + application()+", "+hostIP() + ") DO UPDATE SET "+ hostName() + " = :hostName, " + appUpdateTime() + " = CURRENT_TIMESTAMP ";
+            " ON CONFLICT (" + appApplication()+", "+appHostIP() + ") DO UPDATE SET "+ appHostName() + " = :hostName, " + appUpdateTime() + " = CURRENT_TIMESTAMP ";
     }
 //    
 //    private String updateAppClause() {

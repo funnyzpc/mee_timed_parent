@@ -99,6 +99,9 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
         private final Integer isolationLevel;
         // add
         private final boolean hasAppTable;
+        private String hostIP=Utils.getHostaddress();
+        private String hostName=Utils.getHostname();
+        private final String state="1";
 
         Configuration(
             @NonNull JdbcTemplate jdbcTemplate,
@@ -174,10 +177,21 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
             return hasAppTable;
         }
 
+        public String getHostIP() {
+            return hostIP;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getState() {
+            return state;
+        }
+
         public static Configuration.Builder builder() {
             return new Configuration.Builder();
         }
-
 
         public static final class Builder {
             private JdbcTemplate jdbcTemplate;
@@ -259,6 +273,7 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
         // application 也即 schedName
         private final String application;
         private final String hostIP;
+        private final String hostName;
         private final String state;
         private final String updateTime;
 
@@ -267,18 +282,20 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
             this.lockUntil = requireNonNull(lockUntil, "'lockUntil' column name can not be null");
             this.lockedAt = requireNonNull(lockedAt, "'lockedAt' column name can not be null");
             this.lockedBy = requireNonNull(lockedBy, "'lockedBy' column name can not be null");
-            this.application = "application";
-            this.hostIP = "host_ip";
-            this.state = "state";
-            this.updateTime = "update_time";
+            this.application = "APPLICATION";
+            this.hostIP = "HOST_IP";
+            this.hostName = "HOST_NAME";
+            this.state = "STATE";
+            this.updateTime = "UPDATE_TIME";
         }
-        public ColumnNames(String name, String lockUntil, String lockedAt, String lockedBy,String application, String hostIP, String state,String updateTime) {
+        public ColumnNames(String name, String lockUntil, String lockedAt, String lockedBy,String application, String hostIP,String hostName, String state,String updateTime) {
             this.name = requireNonNull(name, "'name' column name can not be null");
             this.lockUntil = requireNonNull(lockUntil, "'lockUntil' column name can not be null");
             this.lockedAt = requireNonNull(lockedAt, "'lockedAt' column name can not be null");
             this.lockedBy = requireNonNull(lockedBy, "'lockedBy' column name can not be null");
             this.application = application;
             this.hostIP = hostIP;
+            this.hostName = hostName;
             this.state = state;
             this.updateTime = updateTime;
         }
@@ -311,6 +328,25 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
 
         public String getUpdateTime() {
             return updateTime;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        @Override
+        public String toString() {
+            return "ColumnNames{" +
+                    "name='" + name + '\'' +
+                    ", lockUntil='" + lockUntil + '\'' +
+                    ", lockedAt='" + lockedAt + '\'' +
+                    ", lockedBy='" + lockedBy + '\'' +
+                    ", application='" + application + '\'' +
+                    ", hostIP='" + hostIP + '\'' +
+                    ", hostName='" + hostName + '\'' +
+                    ", state='" + state + '\'' +
+                    ", updateTime='" + updateTime + '\'' +
+                    '}';
         }
     }
 
@@ -347,6 +383,17 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
 
         public String getUpdateTime() {
             return updateTime;
+        }
+
+        @Override
+        public String toString() {
+            return "AppColumnNames{" +
+                    "application='" + application + '\'' +
+                    ", hostIP='" + hostIP + '\'' +
+                    ", hostName='" + hostName + '\'' +
+                    ", state='" + state + '\'' +
+                    ", updateTime='" + updateTime + '\'' +
+                    '}';
         }
     }
 

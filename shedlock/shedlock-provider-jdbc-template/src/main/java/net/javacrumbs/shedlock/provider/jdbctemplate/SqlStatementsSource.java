@@ -145,7 +145,7 @@ class SqlStatementsSource {
 
     String getAppInsertStatement() {
         // INSERT INTO SYS_SHEDLOCK_APP(application, host_ip, host_name, state, create_time) VALUES(:application, :hostIP, :hostName :state, :createTime)
-        return "INSERT INTO " + tableAppName() + "(" + application() + ", " +hostIP() + ", "+hostName() + ", " + state() + ", " + appUpdateTime() + ") VALUES( :application, :hostIP, :hostName, :state, :updateTime)";
+        return "INSERT INTO " + appTableName() + "(" + appApplication() + ", " +appHostIP() + ", "+appHostName() + ", " + appState() + ", " + appUpdateTime() + ") VALUES( :application, :hostIP, :hostName, :state, :updateTime)";
     }
 
     public String getUpdateStatement() {
@@ -162,7 +162,7 @@ class SqlStatementsSource {
         return "UPDATE " + tableName() + " SET "+ hostIP() + " = :hostIP, " + lockUntil() + " = :unlockTime WHERE " + application() + " = :application AND "+ name() + " = :name AND "+state()+" = :state";
     }
     public String appCause(){
-        return configuration.getHasAppTable()?" AND (SELECT 1 from "+tableAppName()+" WHERE "+application()+" = :application AND "+hostIP()+" = :hostIP AND "+state()+" = :state ) IS NOT NULL " : "";
+        return configuration.getHasAppTable()?" AND (SELECT 1 from "+ appTableName()+" WHERE "+appApplication()+" = :application AND "+appHostIP()+" = :hostIP AND "+appState()+" = :state ) IS NOT NULL " : "";
     }
 
     String name() {
@@ -196,18 +196,27 @@ class SqlStatementsSource {
     String updateTime(){
         return configuration.getColumnNames().getUpdateTime();
     }
-    String tableAppName() {
+    String hostName(){
+        return configuration.getColumnNames().getHostName();
+    }
+
+    String appTableName() {
         return configuration.getTableAppName();
     }
-    String hostName(){
+    String appHostName(){
         return configuration.getAppColumnNames().getHostName();
     }
     String appUpdateTime(){
         return configuration.getAppColumnNames().getUpdateTime();
     }
-//    String isNeedAppCause(){
-//        // todo 定义字段到 configuration 中
-//        return ( null==configuration.getTableAppName() || "".equals(configuration.getTableAppName().trim()) )?" ":appCause();
-//    }
+    String appHostIP(){
+        return configuration.getAppColumnNames().getHostIP();
+    }
+    String appState(){
+        return configuration.getAppColumnNames().getState();
+    }
+    String appApplication(){
+        return configuration.getAppColumnNames().getApplication();
+    }
 
 }

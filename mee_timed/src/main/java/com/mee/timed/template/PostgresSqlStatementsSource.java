@@ -21,9 +21,9 @@ class PostgresSqlStatementsSource extends SqlStatementsSource {
         // SqlStatementsSource::getInsertStatement
         // INSERT INTO shedlock(name, lock_until, locked_at, locked_by) VALUES(:name, :lockUntil, :now, :lockedBy)
         //      ON CONFLICT (name) DO UPDATE SET lock_until = :lockUntil, locked_at = :now, locked_by = :lockedBy WHERE shedlock.lock_until <= :now
-        return super.getAppInsertStatement() + " ON CONFLICT (" + application() +" , "+ hostIP() + ") DO UPDATE " +
-            "SET "+ hostName() + " = :hostName, " + appUpdateTime() + " = CURRENT_TIMESTAMP " +
-            "WHERE (" + tableAppName() + "." + hostName() + " != :hostName OR " +tableAppName() + "." + appUpdateTime() + " != CURRENT_TIMESTAMP ) AND " +tableAppName()+"."+state()+" = :state";
+        return super.getAppInsertStatement() + " ON CONFLICT (" + appApplication() +" , "+ appHostIP() + ") DO UPDATE " +
+            "SET "+ appHostName() + " = :hostName, " + appUpdateTime() + " = CURRENT_TIMESTAMP " +
+            "WHERE (" + appTableName() + "." + appHostName() + " != :hostName OR " + appTableName() + "." + appUpdateTime() + " != CURRENT_TIMESTAMP ) AND " + appTableName()+"."+appState()+" = :state";
 
     }
 

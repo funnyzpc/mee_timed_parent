@@ -17,8 +17,10 @@ package net.javacrumbs.shedlock.provider.jdbctemplate;
 
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider.Configuration;
-import net.javacrumbs.shedlock.support.AbstractStorageAccessor;
+import net.javacrumbs.shedlock.support.StorageAccessor;
 import net.javacrumbs.shedlock.support.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.CannotSerializeTransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -39,7 +41,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * Spring JdbcTemplate based implementation usable in JTA environment
  */
-class JdbcTemplateStorageAccessor extends AbstractStorageAccessor {
+class JdbcTemplateStorageAccessor implements StorageAccessor {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final TransactionTemplate transactionTemplate;
     private final Configuration configuration;
@@ -110,7 +114,6 @@ class JdbcTemplateStorageAccessor extends AbstractStorageAccessor {
     @Override
     public boolean extend(@NonNull LockConfiguration lockConfiguration) {
         String sql = sqlStatementsSource().getExtendStatement();
-
         logger.debug("Extending lock={} until={}", lockConfiguration.getName(), lockConfiguration.getLockAtMostUntil());
         return execute(sql, lockConfiguration);
     }

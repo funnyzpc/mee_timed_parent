@@ -19,12 +19,15 @@ public final class LockExtender {
      */
     public static void extendActiveLock(@NonNull Duration lockAtMostFor, @NonNull Duration lockAtLeastFor) {
         SimpleLock lock = activeLock.get();
-        if (lock == null) throw new NoActiveLockException();
+        if (lock == null) {
+//            throw new NoActiveLockException();
+            throw new LockExtensionException("No active lock in current thread, please make sure that you execute LockExtender.extendActiveLock in locked context.");
+        }
         Optional<SimpleLock> newLock = lock.extend(lockAtMostFor, lockAtLeastFor);
         if (newLock.isPresent()) {
             activeLock.set(newLock.get());
         } else {
-            throw new LockCanNotBeExtendedException();
+            throw new LockExtensionException();
         }
     }
 
@@ -42,17 +45,21 @@ public final class LockExtender {
         public LockExtensionException(String message) {
             super(message);
         }
-    }
-
-    public static class NoActiveLockException extends LockExtensionException {
-        public NoActiveLockException() {
-            super("No active lock in current thread, please make sure that you execute LockExtender.extendActiveLock in locked context.");
-        }
-    }
-
-    public static class LockCanNotBeExtendedException extends LockExtensionException {
-        public LockCanNotBeExtendedException() {
+        public LockExtensionException() {
             super("Lock can not be extended, most likely it already expired.");
         }
     }
+
+//    public static class NoActiveLockException extends LockExtensionException {
+//        public NoActiveLockException() {
+//            super("No active lock in current thread, please make sure that you execute LockExtender.extendActiveLock in locked context.");
+//        }
+//    }
+
+//    public static class LockCanNotBeExtendedException extends LockExtensionException {
+//        public LockCanNotBeExtendedException() {
+//            super("Lock can not be extended, most likely it already expired.");
+//        }
+//    }
+
 }

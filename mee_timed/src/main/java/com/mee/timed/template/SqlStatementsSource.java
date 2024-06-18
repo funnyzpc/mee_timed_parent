@@ -126,7 +126,7 @@ class SqlStatementsSource {
 
     String getAppInsertStatement() {
         // INSERT INTO SYS_SHEDLOCK_APP(application, host_ip, host_name, state, create_time) VALUES(:application, :hostIP, :hostName :state, :createTime)
-        return "INSERT INTO " + tableAppName() + "(" + application() + ", " +hostIP() + ", "+hostName() + ", " + state() + ", " + appUpdateTime() + ") VALUES( :application, :hostIP, :hostName, :state, :updateTime)";
+        return "INSERT INTO " + appTableName() + "(" + appApplication() + ", " +appHostIP() + ", "+appHostName() + ", " + appState() + ", " + appUpdateTime() + ") VALUES( :application, :hostIP, :hostName, :state, :updateTime)";
     }
 
     String getUpdateStatement() {
@@ -148,13 +148,18 @@ class SqlStatementsSource {
         return "UPDATE " + tableName() + " SET "+ hostIP() + " = :hostIP, " + lockUntil() + " = :unlockTime WHERE " + application() + " = :application AND "+ name() + " = :name AND "+state()+" = :state";
     }
     public String appCause(){
-        return configuration.hasAppTable()?" AND (SELECT 1 from "+tableAppName()+" WHERE "+application()+" = :application AND "+hostIP()+" = :hostIP AND "+state()+" = :state ) IS NOT NULL " : "";
+        return configuration.hasAppTable()?" AND (SELECT 1 from "+ appTableName()+" WHERE "+application()+" = :application AND "+hostIP()+" = :hostIP AND "+state()+" = :state ) IS NOT NULL " : "";
+    }
+    String application(){
+        return configuration.getColumnNames().getApplication();
     }
 
     String name() {
         return configuration.getColumnNames().getName();
     }
-
+    String hostIP(){
+        return configuration.getColumnNames().getHostIP();
+    }
     String lockUntil() {
         return configuration.getColumnNames().getLockUntil();
     }
@@ -170,26 +175,11 @@ class SqlStatementsSource {
     String tableName() {
         return configuration.getTableName();
     }
-    String application(){
-        return configuration.getColumnNames().getApplication();
-    }
-    String hostIP(){
-        return configuration.getColumnNames().getHostIP();
-    }
     String state(){
         return configuration.getColumnNames().getState();
     }
     String updateTime(){
         return configuration.getColumnNames().getUpdateTime();
-    }
-    String tableAppName() {
-        return configuration.getTableAppName();
-    }
-    String hostName(){
-        return configuration.getAppColumnNames().getHostName();
-    }
-    String appUpdateTime(){
-        return configuration.getAppColumnNames().getUpdateTime();
     }
     String data(){
         return configuration.getColumnNames().getData();
@@ -197,4 +187,25 @@ class SqlStatementsSource {
     String label(){
         return configuration.getColumnNames().getLabel();
     }
+
+    // -------- app fields ----------
+    String appTableName() {
+        return configuration.getTableAppName();
+    }
+    String appHostName(){
+        return configuration.getAppColumnNames().getHostName();
+    }
+    String appUpdateTime(){
+        return configuration.getAppColumnNames().getUpdateTime();
+    }
+    String appHostIP(){
+        return configuration.getAppColumnNames().getHostIP();
+    }
+    String appState(){
+        return configuration.getAppColumnNames().getState();
+    }
+    String appApplication(){
+        return configuration.getAppColumnNames().getApplication();
+    }
+
 }
