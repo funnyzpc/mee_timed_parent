@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @see DefaultManagedTaskScheduler
  * @see ThreadPoolTaskScheduler
  */
-public class ConcurrentTimedScheduler extends ConcurrentTaskExecutor implements TaskScheduler {
+public class ConcurrentTimedScheduler extends ConcurrentTimedExecutor /*extends ConcurrentTaskExecutor*/ implements com.mee.timed.TaskScheduler {
 
 //	@Nullable
 //	private static Class<?> managedScheduledExecutorServiceClass;
@@ -74,15 +74,15 @@ public class ConcurrentTimedScheduler extends ConcurrentTaskExecutor implements 
 	private Clock clock = Clock.systemDefaultZone();
 
 
-	/**
-	 * Create a new ConcurrentTaskScheduler,
-	 * using a single thread executor as default.
-	 * @see Executors#newSingleThreadScheduledExecutor()
-	 */
-	public ConcurrentTimedScheduler() {
-		super();
-		this.scheduledExecutor = initScheduledExecutor(null);
-	}
+//	/**
+//	 * Create a new ConcurrentTaskScheduler,
+//	 * using a single thread executor as default.
+//	 * @see Executors#newSingleThreadScheduledExecutor()
+//	 */
+//	public ConcurrentTimedScheduler() {
+//		super();
+//		this.scheduledExecutor = initScheduledExecutor(null);
+//	}
 
 	/**
 	 * Create a new ConcurrentTaskScheduler, using the given

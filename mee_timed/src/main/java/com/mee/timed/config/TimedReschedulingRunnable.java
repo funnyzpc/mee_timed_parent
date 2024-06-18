@@ -1,13 +1,12 @@
-
 package com.mee.timed.config;
 
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.support.DelegatingErrorHandlingRunnable;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ErrorHandler;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Clock;
 import java.util.Date;
 import java.util.concurrent.Delayed;
@@ -30,7 +29,7 @@ import java.util.concurrent.TimeoutException;
  * @author Mark Fisher
  * @since 3.0
  */
-public class TimedReschedulingRunnable extends DelegatingErrorHandlingRunnable implements ScheduledFuture<Object> {
+public class TimedReschedulingRunnable /*extends DelegatingErrorHandlingRunnable*/ implements Runnable,ScheduledFuture<Object> {
 
 	private final Trigger trigger;
 
@@ -46,9 +45,15 @@ public class TimedReschedulingRunnable extends DelegatingErrorHandlingRunnable i
 
 	private final Object triggerContextMonitor = new Object();
 
+	private final ErrorHandler errorHandler;
+	private final Runnable delegate;
+
 
 	public TimedReschedulingRunnable(Runnable delegate, Trigger trigger, Clock clock, ScheduledExecutorService executor, ErrorHandler errorHandler) {
-		super(delegate, errorHandler);
+//		super(delegate, errorHandler);
+		this.errorHandler = errorHandler;
+		this.delegate = delegate;
+
 		this.trigger = trigger;
 		this.triggerContext = new SimpleTriggerContext(clock);
 		this.executor = executor;
@@ -76,7 +81,14 @@ public class TimedReschedulingRunnable extends DelegatingErrorHandlingRunnable i
 	@Override
 	public void run() {
 		Date actualExecutionTime = new Date(this.triggerContext.getClock().millis());
-		super.run();
+		try {
+			//	super.run();
+			this.delegate.run();
+		} catch (UndeclaredThrowableException var2) {
+			this.errorHandler.handleError(var2.getUndeclaredThrowable());
+		} catch (Throwable var3) {
+			this.errorHandler.handleError(var3);
+		}
 		Date completionTime = new Date(this.triggerContext.getClock().millis());
 		synchronized (this.triggerContextMonitor) {
 			Assert.state(this.scheduledExecutionTime != null, "No scheduled execution");

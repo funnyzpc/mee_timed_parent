@@ -1,6 +1,8 @@
 package com.mee.timed.config;
 
 import com.mee.timed.annotation.MeeTimed;
+import com.mee.timed.data.JobEntity;
+import com.mee.timed.data.JobExecutionContextImpl;
 import com.mee.timed.template.ClockProvider;
 import com.mee.timed.template.LockConfiguration;
 import com.mee.timed.template.LockProvider;
@@ -15,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Duration;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -33,12 +36,10 @@ public class TimedMethodRunnable implements Runnable {
 
 	private final Method method;
 	private final MeeTimed scheduled;
-//	private final JdbcTemplate jdbcTemplate;
 	private final LockProvider lockProvider;
-	private WeakReference<LockConfiguration> configuration;//= new WeakReference<LockConfiguration>();
-//	private LockConfiguration configuration;
-	private final Duration defaultLockAtMostFor = Duration.parse("PT10M");
-	private final Duration defaultLockAtLeastFor = Duration.parse("PT2M");
+	private WeakReference<LockConfiguration> lockConfiguration;//= new WeakReference<LockConfiguration>();
+//	private final Duration defaultLockAtMostFor = Duration.parse("PT1M");
+//	private final Duration defaultLockAtLeastFor = Duration.parse("PT1S");
 
 //	/**
 //	 * Create a {@code ScheduledMethodRunnable} for the given target instance,
@@ -77,19 +78,19 @@ public class TimedMethodRunnable implements Runnable {
 		this.lockProvider = lockProvider;
 	}
 
-	/**
-	 * Return the target instance to call the method on.
-	 */
-	public Object getTarget() {
-		return this.target;
-	}
-
-	/**
-	 * Return the target method to call.
-	 */
-	public Method getMethod() {
-		return this.method;
-	}
+//	/**
+//	 * Return the target instance to call the method on.
+//	 */
+//	public Object getTarget() {
+//		return this.target;
+//	}
+//
+//	/**
+//	 * Return the target method to call.
+//	 */
+//	public Method getMethod() {
+//		return this.method;
+//	}
 
 
 	@Override
@@ -100,22 +101,32 @@ public class TimedMethodRunnable implements Runnable {
 			MeeTimed annotation = this.scheduled;
 			// 开始加锁
 			LockConfiguration lockConfiguration;
-			if(configuration!=null && (lockConfiguration=configuration.get())!=null){
+			if(this.lockConfiguration !=null && (lockConfiguration= this.lockConfiguration.get())!=null){
 				lockConfiguration.setCreatedAt(ClockProvider.now());
-				LOGGER.info("获取到缓存key:{}",lockConfiguration.getName());
+				LOGGER.debug("获取到缓存key:{}",lockConfiguration.getName());
 			}else{
-				configuration= new WeakReference<>(lockConfiguration=this.getLockConfiguration(annotation,mth));
+				this.lockConfiguration = new WeakReference<>(lockConfiguration=this.getLockConfiguration(annotation,mth));
 				LOGGER.error("写入到缓存key:{}",lockConfiguration.getName());
 			}
+			// 获取锁
 			Optional<SimpleLock> lock = lockProvider.lock(lockConfiguration);
-			if(lock.isEmpty()){
-				LOGGER.error("加锁了:{}",lockConfiguration);
+//			if(lock.isEmpty()){
+			if(!lock.isPresent()){
+				LOGGER.error("已加锁:{}",lockConfiguration.getName());
 				return;
 			}
 			// 去掉 private 等不可见修饰
 			ReflectionUtils.makeAccessible(mth);
 			// 执行目标函数
-			mth.invoke(this.target);
+			if(mth.getParameterCount()>0){
+				JobEntity jobRecord = lockProvider.getStorageAccessor().findJobRecord(lockConfiguration);
+				mth.invoke(this.target,this.buildParam(jobRecord));
+			}else{
+				mth.invoke(this.target);
+			}
+			// 释放锁
+			lock.get().unlock();
+//			lockProvider.getStorageAccessor().unlock(lockConfiguration);
 		}
 		catch (InvocationTargetException ex) {
 			ReflectionUtils.rethrowRuntimeException(ex.getTargetException());
@@ -123,14 +134,10 @@ public class TimedMethodRunnable implements Runnable {
 		catch (IllegalAccessException ex) {
 			throw new UndeclaredThrowableException(ex);
 		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
-
-//	private MeeTimed findAnnotation(Method method) {
-//		MeeTimed meeTimed = method.getDeclaredAnnotation(MeeTimed.class);
-//		MeeTimeds meeTimeds = (null!=meeTimed)?null:method.getDeclaredAnnotation(MeeTimeds.class);
-//		return null!=meeTimed?meeTimed:(null!=meeTimeds && meeTimeds.value().length!=0)?meeTimeds.value()[0] :null;
-////		return method.findAnnotation(SchedulerLock.class);
-//	}
 
 	private LockConfiguration getLockConfiguration(MeeTimed annotation,Method mth) throws IllegalArgumentException {
 //		// 如果没有定义lockName 则 key=className#methodName 否则 key=className#methodName#lockName
@@ -145,17 +152,23 @@ public class TimedMethodRunnable implements Runnable {
 		return new LockConfiguration(
 				ClockProvider.now(),
 				key,
-				null==lockAtMostFor?defaultLockAtMostFor:Duration.parse(lockAtMostFor),
-				null==lockAtLeastFor?defaultLockAtLeastFor:Duration.parse(lockAtLeastFor)
+				null==lockAtMostFor||"".equals(lockAtMostFor.trim())? lockProvider.getConfiguration().getDefaultMostFor():Duration.parse(lockAtMostFor),
+				null==lockAtLeastFor||"".equals(lockAtLeastFor.trim())?lockProvider.getConfiguration().getDefaultLeastFor():Duration.parse(lockAtLeastFor)
 		);
 	}
 
 	public static String buildKey(MeeTimed annotation,Method mth) throws IllegalArgumentException {
 		final String lockName = annotation.lockName();
 		if(null!=lockName && lockName.contains("#")) {
-			throw new IllegalArgumentException("@MeeTimed[lockName] contains '#");
+			throw new IllegalArgumentException("@MeeTimed[lockName] not allowed contains '#");
 		}
 		return mth.getDeclaringClass().getName()+"#"+mth.getName()+("".equals(lockName)?"":"#"+lockName);
+	}
+
+	private JobExecutionContextImpl buildParam(JobEntity jobEntity){
+		return new JobExecutionContextImpl(new Date())
+				.setJobDataJson(jobEntity.getData())
+				.setJobInfo(jobEntity);
 	}
 	@Override
 	public String toString() {

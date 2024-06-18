@@ -1,5 +1,0 @@
-net/javacrumbs/shedlock/test/support/FuzzTester.class
-net/javacrumbs/shedlock/test/support/FuzzTester$Job.class
-net/javacrumbs/shedlock/test/support/AbstractExtensibleLockProviderIntegrationTest.class
-net/javacrumbs/shedlock/test/support/AbstractLockProviderIntegrationTest.class
-net/javacrumbs/shedlock/test/support/AbstractStorageBasedLockProviderIntegrationTest.class

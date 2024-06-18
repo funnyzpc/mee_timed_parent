@@ -210,15 +210,16 @@ import java.util.concurrent.Executor;
 @Documented
 public @interface EnableMeeTimed {
 
-    /**
-     * 默认最长锁定时间
-     * @return String
-     */
-    String defaultLockAtMostFor();
+//    /**
+//     * 默认最长锁定时间 默认一分钟,参数可在配置文件中配置
+//     * @return String
+//     */
+//    String defaultLockAtMostFor();
+//
+//    /**
+//     * 默认最短锁定时间 默认一秒，参数可以在配置文件中配置
+//     * @return String
+//     */
+//    String defaultLockAtLeastFor() default "PT1S";
 
-    /**
-     * 默认最短锁定时间
-     * @return String
-     */
-    String defaultLockAtLeastFor() default "PT1S";
 }

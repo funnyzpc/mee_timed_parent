@@ -1,6 +1,8 @@
 package com.mee.timed.template;
 
 
+import com.mee.timed.data.JobEntity;
+
 public interface StorageAccessor {
     /**
      * Inserts a record, if it does not already exists. If it exists, returns false.
@@ -21,6 +23,7 @@ public interface StorageAccessor {
      * @return true if updated
      */
     boolean updateRecord( LockConfiguration lockConfiguration);
+    JobEntity findJobRecord(LockConfiguration lockConfiguration);
 
     void unlock( LockConfiguration lockConfiguration);
 

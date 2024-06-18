@@ -1,10 +1,12 @@
 package com.mee.timed.template;
 
 
+import com.mee.timed.data.JobEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.CannotSerializeTransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionSystemException;
@@ -118,6 +120,22 @@ public class JdbcTemplateStorageAccessor implements StorageAccessor {
         } catch (DataIntegrityViolationException | TransactionSystemException e) {
             LOGGER.error("Unexpected exception", e);
             return false;
+        }
+    }
+
+    @Override
+    public JobEntity findJobRecord(LockConfiguration lockConfiguration) {
+        String sql = sqlStatementsSource().getJobDataStatement();
+        try {
+            LOGGER.debug("job查询语句:{},{}",sql,lockConfiguration);
+            JobEntity jobEntity = jdbcTemplate.queryForObject(sql, params(lockConfiguration), new BeanPropertyRowMapper<>(JobEntity.class));
+            if(null!=jobEntity){
+                jobEntity.setIsUTC(configuration.getUseDbTime());
+            }
+            return jobEntity;
+        } catch (Exception e) {
+            LOGGER.debug("Serialization exception:{}",lockConfiguration, e);
+            return null;
         }
     }
 

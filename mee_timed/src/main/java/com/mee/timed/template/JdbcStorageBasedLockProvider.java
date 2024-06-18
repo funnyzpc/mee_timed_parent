@@ -27,9 +27,11 @@ import java.util.Optional;
 public class JdbcStorageBasedLockProvider implements LockProvider {
     
     private final StorageAccessor storageAccessor;
+    private final Configuration configuration;
 //    private final LockRecordRegistry lockRecordRegistry = new LockRecordRegistry();
 
     public JdbcStorageBasedLockProvider( Configuration configuration) {
+        this.configuration=configuration;
         this.storageAccessor = new JdbcTemplateStorageAccessor(configuration);
     }
 
@@ -38,10 +40,14 @@ public class JdbcStorageBasedLockProvider implements LockProvider {
         return storageAccessor;
     }
 
-    @Deprecated
-    public JdbcStorageBasedLockProvider( StorageAccessor storageAccessor) {
-        this.storageAccessor = storageAccessor;
+    @Override
+    public Configuration getConfiguration() {
+        return configuration;
     }
+//    @Deprecated
+//    public JdbcStorageBasedLockProvider( StorageAccessor storageAccessor) {
+//        this.storageAccessor = storageAccessor;
+//    }
 
 //    /**
 //     * Clears cache of existing lock records.
@@ -110,28 +116,28 @@ public class JdbcStorageBasedLockProvider implements LockProvider {
 //        }
 //    }
 
-    private static class StorageLock extends AbstractSimpleLock {
-        private final StorageAccessor storageAccessor;
-
-        StorageLock(LockConfiguration lockConfiguration, StorageAccessor storageAccessor) {
-            super(lockConfiguration);
-            this.storageAccessor = storageAccessor;
-        }
-
-        @Override
-        public void doUnlock() {
-            storageAccessor.unlock(lockConfiguration);
-        }
-
-//        @Override
-//        public Optional<SimpleLock> doExtend(LockConfiguration newConfig) {
-//            if (storageAccessor.extend(newConfig)) {
-//                return Optional.of(new StorageLock(newConfig, storageAccessor));
-//            } else {
-//                return Optional.empty();
-//            }
+//    private static class StorageLock extends AbstractSimpleLock {
+//        private final StorageAccessor storageAccessor;
+//
+//        StorageLock(LockConfiguration lockConfiguration, StorageAccessor storageAccessor) {
+//            super(lockConfiguration);
+//            this.storageAccessor = storageAccessor;
 //        }
-
-    }
+//
+//        @Override
+//        public void doUnlock() {
+//            storageAccessor.unlock(lockConfiguration);
+//        }
+//
+////        @Override
+////        public Optional<SimpleLock> doExtend(LockConfiguration newConfig) {
+////            if (storageAccessor.extend(newConfig)) {
+////                return Optional.of(new StorageLock(newConfig, storageAccessor));
+////            } else {
+////                return Optional.empty();
+////            }
+////        }
+//
+//    }
 
 }

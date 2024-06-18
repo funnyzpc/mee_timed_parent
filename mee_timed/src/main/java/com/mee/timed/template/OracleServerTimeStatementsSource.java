@@ -58,12 +58,12 @@ class OracleServerTimeStatementsSource extends SqlStatementsSource {
         // WHEN NOT MATCHED THEN
         //     INSERT (application,host_ip ,host_name,state,update_time ) VALUES ( TT.application,TT.host_ip ,TT.host_name,TT.state,TT.update_time );
         return "MERGE INTO "+tableAppName()+" T \n" +
-            "USING ( SELECT :application AS "+application()+",:hostIP AS "+hostIP()+" ,:hostName AS "+hostName()+",:state AS "+state()+", "+now+" AS "+updateTime()+" FROM DUAL ) TT \n" +
+            "USING ( SELECT :application AS "+application()+",:hostIP AS "+hostIP()+" ,:hostName AS "+hostName()+",:state AS "+state()+", "+now+" AS "+appUpdateTime()+" FROM DUAL ) TT \n" +
             "ON (T."+application()+" = TT."+application()+" AND T."+hostIP()+" = TT."+hostIP()+" ) \n" +
             "WHEN MATCHED THEN \n" +
-            "    UPDATE SET T."+hostName()+" = TT."+hostName()+" ,T."+updateTime()+" = TT."+updateTime()+"  \n" +
+            "    UPDATE SET T."+hostName()+" = TT."+hostName()+" ,T."+appUpdateTime()+" = TT."+appUpdateTime()+"  \n" +
             "WHEN NOT MATCHED THEN \n" +
-            "    INSERT ("+application()+","+hostIP()+","+hostName()+","+state()+","+updateTime()+" ) VALUES ( TT."+application()+",TT."+hostIP()+" ,TT."+hostName()+",TT."+state()+",TT."+updateTime()+" )";
+            "    INSERT ("+application()+","+hostIP()+","+hostName()+","+state()+","+appUpdateTime()+" ) VALUES ( TT."+application()+",TT."+hostIP()+" ,TT."+hostName()+",TT."+state()+",TT."+appUpdateTime()+" )";
 //        return "INSERT INTO " + tableAppName() + "(" +application()+ ", "+ hostIP() + ", " +hostName()+", "+ state() + ", " + appUpdateTime() + ") VALUES(:application, :hostIP, :hostName, :state, SYSTIMESTAMP(0)";
     }
 

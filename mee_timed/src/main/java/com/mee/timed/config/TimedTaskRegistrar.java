@@ -2,20 +2,17 @@
 package com.mee.timed.config;
 
 import com.mee.timed.ScheduledTaskHolder;
+import com.mee.timed.TaskScheduler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.config.FixedDelayTask;
 import org.springframework.scheduling.config.FixedRateTask;
 import org.springframework.scheduling.config.IntervalTask;
-import org.springframework.scheduling.config.ScheduledTasksBeanDefinitionParser;
 import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.config.TriggerTask;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -64,6 +61,7 @@ public class TimedTaskRegistrar implements ScheduledTaskHolder, InitializingBean
 	@Nullable
 	private TaskScheduler taskScheduler;
 
+	@Deprecated
 	@Nullable
 	private ScheduledExecutorService localExecutor;
 
@@ -122,130 +120,130 @@ public class TimedTaskRegistrar implements ScheduledTaskHolder, InitializingBean
 	}
 
 
-	/**
-	 * Specify triggered tasks as a Map of Runnables (the tasks) and Trigger objects
-	 * (typically custom implementations of the {@link Trigger} interface).
-	 */
-	public void setTriggerTasks(Map<Runnable, Trigger> triggerTasks) {
-		this.triggerTasks = new ArrayList<>();
-		triggerTasks.forEach((task, trigger) -> addTriggerTask(new TriggerTask(task, trigger)));
-	}
-
-	/**
-	 * Specify triggered tasks as a list of {@link TriggerTask} objects. Primarily used
-	 * by {@code <task:*>} namespace parsing.
-	 * @since 3.2
-	 * @see ScheduledTasksBeanDefinitionParser
-	 */
-	public void setTriggerTasksList(List<TriggerTask> triggerTasks) {
-		this.triggerTasks = triggerTasks;
-	}
-
-	/**
-	 * Get the trigger tasks as an unmodifiable list of {@link TriggerTask} objects.
-	 * @return the list of tasks (never {@code null})
-	 * @since 4.2
-	 */
-	public List<TriggerTask> getTriggerTaskList() {
-		return (this.triggerTasks != null? Collections.unmodifiableList(this.triggerTasks) :
-				Collections.emptyList());
-	}
-
-	/**
-	 * Specify triggered tasks as a Map of Runnables (the tasks) and cron expressions.
-	 * @see CronTrigger
-	 */
-	public void setCronTasks(Map<Runnable, String> cronTasks) {
-		this.cronTasks = new ArrayList<>();
-		cronTasks.forEach(this::addCronTask);
-	}
-
-	/**
-	 * Specify triggered tasks as a list of {@link CronTask} objects. Primarily used by
-	 * {@code <task:*>} namespace parsing.
-	 * @since 3.2
-	 * @see ScheduledTasksBeanDefinitionParser
-	 */
-	public void setCronTasksList(List<CronTask> cronTasks) {
-		this.cronTasks = cronTasks;
-	}
-
-	/**
-	 * Get the cron tasks as an unmodifiable list of {@link CronTask} objects.
-	 * @return the list of tasks (never {@code null})
-	 * @since 4.2
-	 */
-	public List<CronTask> getCronTaskList() {
-		return (this.cronTasks != null ? Collections.unmodifiableList(this.cronTasks) :
-				Collections.emptyList());
-	}
-
-	/**
-	 * Specify triggered tasks as a Map of Runnables (the tasks) and fixed-rate values.
-	 * @see TaskScheduler#scheduleAtFixedRate(Runnable, long)
-	 */
-	public void setFixedRateTasks(Map<Runnable, Long> fixedRateTasks) {
-		this.fixedRateTasks = new ArrayList<>();
-		fixedRateTasks.forEach(this::addFixedRateTask);
-	}
-
-	/**
-	 * Specify fixed-rate tasks as a list of {@link IntervalTask} objects. Primarily used
-	 * by {@code <task:*>} namespace parsing.
-	 * @since 3.2
-	 * @see ScheduledTasksBeanDefinitionParser
-	 */
-	public void setFixedRateTasksList(List<IntervalTask> fixedRateTasks) {
-		this.fixedRateTasks = fixedRateTasks;
-	}
-
-	/**
-	 * Get the fixed-rate tasks as an unmodifiable list of {@link IntervalTask} objects.
-	 * @return the list of tasks (never {@code null})
-	 * @since 4.2
-	 */
-	public List<IntervalTask> getFixedRateTaskList() {
-		return (this.fixedRateTasks != null ? Collections.unmodifiableList(this.fixedRateTasks) :
-				Collections.emptyList());
-	}
-
-	/**
-	 * Specify triggered tasks as a Map of Runnables (the tasks) and fixed-delay values.
-	 * @see TaskScheduler#scheduleWithFixedDelay(Runnable, long)
-	 */
-	public void setFixedDelayTasks(Map<Runnable, Long> fixedDelayTasks) {
-		this.fixedDelayTasks = new ArrayList<>();
-		fixedDelayTasks.forEach(this::addFixedDelayTask);
-	}
-
-	/**
-	 * Specify fixed-delay tasks as a list of {@link IntervalTask} objects. Primarily used
-	 * by {@code <task:*>} namespace parsing.
-	 * @since 3.2
-	 * @see ScheduledTasksBeanDefinitionParser
-	 */
-	public void setFixedDelayTasksList(List<IntervalTask> fixedDelayTasks) {
-		this.fixedDelayTasks = fixedDelayTasks;
-	}
-
-	/**
-	 * Get the fixed-delay tasks as an unmodifiable list of {@link IntervalTask} objects.
-	 * @return the list of tasks (never {@code null})
-	 * @since 4.2
-	 */
-	public List<IntervalTask> getFixedDelayTaskList() {
-		return (this.fixedDelayTasks != null ? Collections.unmodifiableList(this.fixedDelayTasks) :
-				Collections.emptyList());
-	}
-
-
-	/**
-	 * Add a Runnable task to be triggered per the given {@link Trigger}.
-	 * @see TaskScheduler#scheduleAtFixedRate(Runnable, long)
-	 */
-	public void addTriggerTask(Runnable task, Trigger trigger) {
-		addTriggerTask(new TriggerTask(task, trigger));
-	}
+//	/**
+//	 * Specify triggered tasks as a Map of Runnables (the tasks) and Trigger objects
+//	 * (typically custom implementations of the {@link Trigger} interface).
+//	 */
+//	public void setTriggerTasks(Map<Runnable, Trigger> triggerTasks) {
+//		this.triggerTasks = new ArrayList<>();
+//		triggerTasks.forEach((task, trigger) -> addTriggerTask(new TriggerTask(task, trigger)));
+//	}
+//
+//	/**
+//	 * Specify triggered tasks as a list of {@link TriggerTask} objects. Primarily used
+//	 * by {@code <task:*>} namespace parsing.
+//	 * @since 3.2
+//	 * @see ScheduledTasksBeanDefinitionParser
+//	 */
+//	public void setTriggerTasksList(List<TriggerTask> triggerTasks) {
+//		this.triggerTasks = triggerTasks;
+//	}
+//
+//	/**
+//	 * Get the trigger tasks as an unmodifiable list of {@link TriggerTask} objects.
+//	 * @return the list of tasks (never {@code null})
+//	 * @since 4.2
+//	 */
+//	public List<TriggerTask> getTriggerTaskList() {
+//		return (this.triggerTasks != null? Collections.unmodifiableList(this.triggerTasks) :
+//				Collections.emptyList());
+//	}
+//
+//	/**
+//	 * Specify triggered tasks as a Map of Runnables (the tasks) and cron expressions.
+//	 * @see CronTrigger
+//	 */
+//	public void setCronTasks(Map<Runnable, String> cronTasks) {
+//		this.cronTasks = new ArrayList<>();
+//		cronTasks.forEach(this::addCronTask);
+//	}
+//
+//	/**
+//	 * Specify triggered tasks as a list of {@link CronTask} objects. Primarily used by
+//	 * {@code <task:*>} namespace parsing.
+//	 * @since 3.2
+//	 * @see ScheduledTasksBeanDefinitionParser
+//	 */
+//	public void setCronTasksList(List<CronTask> cronTasks) {
+//		this.cronTasks = cronTasks;
+//	}
+//
+//	/**
+//	 * Get the cron tasks as an unmodifiable list of {@link CronTask} objects.
+//	 * @return the list of tasks (never {@code null})
+//	 * @since 4.2
+//	 */
+//	public List<CronTask> getCronTaskList() {
+//		return (this.cronTasks != null ? Collections.unmodifiableList(this.cronTasks) :
+//				Collections.emptyList());
+//	}
+//
+//	/**
+//	 * Specify triggered tasks as a Map of Runnables (the tasks) and fixed-rate values.
+//	 * @see TaskScheduler#scheduleAtFixedRate(Runnable, long)
+//	 */
+//	public void setFixedRateTasks(Map<Runnable, Long> fixedRateTasks) {
+//		this.fixedRateTasks = new ArrayList<>();
+//		fixedRateTasks.forEach(this::addFixedRateTask);
+//	}
+//
+//	/**
+//	 * Specify fixed-rate tasks as a list of {@link IntervalTask} objects. Primarily used
+//	 * by {@code <task:*>} namespace parsing.
+//	 * @since 3.2
+//	 * @see ScheduledTasksBeanDefinitionParser
+//	 */
+//	public void setFixedRateTasksList(List<IntervalTask> fixedRateTasks) {
+//		this.fixedRateTasks = fixedRateTasks;
+//	}
+//
+//	/**
+//	 * Get the fixed-rate tasks as an unmodifiable list of {@link IntervalTask} objects.
+//	 * @return the list of tasks (never {@code null})
+//	 * @since 4.2
+//	 */
+//	public List<IntervalTask> getFixedRateTaskList() {
+//		return (this.fixedRateTasks != null ? Collections.unmodifiableList(this.fixedRateTasks) :
+//				Collections.emptyList());
+//	}
+//
+//	/**
+//	 * Specify triggered tasks as a Map of Runnables (the tasks) and fixed-delay values.
+//	 * @see TaskScheduler#scheduleWithFixedDelay(Runnable, long)
+//	 */
+//	public void setFixedDelayTasks(Map<Runnable, Long> fixedDelayTasks) {
+//		this.fixedDelayTasks = new ArrayList<>();
+//		fixedDelayTasks.forEach(this::addFixedDelayTask);
+//	}
+//
+//	/**
+//	 * Specify fixed-delay tasks as a list of {@link IntervalTask} objects. Primarily used
+//	 * by {@code <task:*>} namespace parsing.
+//	 * @since 3.2
+//	 * @see ScheduledTasksBeanDefinitionParser
+//	 */
+//	public void setFixedDelayTasksList(List<IntervalTask> fixedDelayTasks) {
+//		this.fixedDelayTasks = fixedDelayTasks;
+//	}
+//
+//	/**
+//	 * Get the fixed-delay tasks as an unmodifiable list of {@link IntervalTask} objects.
+//	 * @return the list of tasks (never {@code null})
+//	 * @since 4.2
+//	 */
+//	public List<IntervalTask> getFixedDelayTaskList() {
+//		return (this.fixedDelayTasks != null ? Collections.unmodifiableList(this.fixedDelayTasks) :
+//				Collections.emptyList());
+//	}
+//
+//
+//	/**
+//	 * Add a Runnable task to be triggered per the given {@link Trigger}.
+//	 * @see TaskScheduler#scheduleAtFixedRate(Runnable, long)
+//	 */
+//	public void addTriggerTask(Runnable task, Trigger trigger) {
+//		addTriggerTask(new TriggerTask(task, trigger));
+//	}
 
 	/**
 	 * Add a {@code TriggerTask}.
@@ -357,10 +355,11 @@ public class TimedTaskRegistrar implements ScheduledTaskHolder, InitializingBean
 			ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 			scheduler.setThreadNamePrefix("MEE_TIMED-");
 			scheduler.initialize();
-			scheduler.setPoolSize(count>5?count/2:count);
+			scheduler.setPoolSize(count>4?count/2+1:count);
 
-			this.localExecutor = scheduler.getScheduledExecutor();//Executors.newSingleThreadScheduledExecutor();
-			this.taskScheduler = new ConcurrentTimedScheduler(this.localExecutor);
+//			this.localExecutor = scheduler.getScheduledExecutor();//Executors.newSingleThreadScheduledExecutor();
+//			this.taskScheduler = new ConcurrentTimedScheduler(this.localExecutor);
+			this.taskScheduler = new ConcurrentTimedScheduler(scheduler.getScheduledExecutor());
 		}
 		if (this.triggerTasks != null) {
 			for (TriggerTask task : this.triggerTasks) {

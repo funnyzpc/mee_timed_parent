@@ -16,7 +16,7 @@
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-core</artifactId>
-            <version>${project.version}</version>
+            <version>${shedlock.version}</version>
         </dependency>
 
         <dependency>

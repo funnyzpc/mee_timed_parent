@@ -129,11 +129,16 @@ class SqlStatementsSource {
         return "INSERT INTO " + tableAppName() + "(" + application() + ", " +hostIP() + ", "+hostName() + ", " + state() + ", " + appUpdateTime() + ") VALUES( :application, :hostIP, :hostName, :state, :updateTime)";
     }
 
-    public String getUpdateStatement() {
+    String getUpdateStatement() {
         return "UPDATE " + tableName() + " SET "+ hostIP() + " = :hostIP, " + lockUntil() + " = :lockUntil, " + lockedAt() + " = :now, " + lockedBy() + " = :lockedBy WHERE " +application()+" = :application AND "+ name() + " = :name AND " + lockUntil() + " <= :now AND "+state()+" = :state "+
             appCause();
     }
-
+    String getJobDataStatement(){
+        // SELECT APPLICATION,NAME,HOST_IP ,LOCKED_AT ,LOCK_UNTIL ,LOCKED_BY ,STATE ,DATA,LABEL ,UPDATE_TIME  FROM SYS_SHEDLOCK_JOB
+        //WHERE APPLICATION = 'MEE_TIMED-TEST' AND NAME = 'COM.MEE.TIMED.TEST.SCHEDULEDTASKS#EXEC02#EXEC2' AND STATE ='1'
+        return "SELECT "+application()+","+name()+","+hostIP()+","+lockedAt()+" ,"+lockUntil()+" ,"+lockedBy()+" ,"+state()+" ,"+data()+","+label()+" ,"+updateTime()+" FROM "+tableName()+" \n" +
+                "WHERE "+application()+" = :application AND "+name()+" = :name AND "+state()+" = :state ";
+    }
     @Deprecated
     public String getExtendStatement() {
         return "UPDATE " + tableName() + " SET "+ hostIP() + " = :hostIP, " + lockUntil() + " = :lockUntil WHERE " +application()+" = :application AND "+ name() + " = :name AND " + lockedBy() + " = :lockedBy AND " + lockUntil() + " > :now AND "+state()+" = :state";
@@ -186,5 +191,10 @@ class SqlStatementsSource {
     String appUpdateTime(){
         return configuration.getAppColumnNames().getUpdateTime();
     }
-
+    String data(){
+        return configuration.getColumnNames().getData();
+    }
+    String label(){
+        return configuration.getColumnNames().getLabel();
+    }
 }

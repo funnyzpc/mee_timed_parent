@@ -1,7 +1,8 @@
 package com.mee.timed;
 
+import com.mee.timed.data.JobEntity;
+
 import java.util.Date;
-import java.util.Map;
 
 /**
  * JobExecutionContext
@@ -17,13 +18,13 @@ public interface JobExecutionContext {
      * 获取任务信息
      * @return Map
      */
-    Map<String,Object> getJobInfo();
+    JobEntity getJobInfo();
 
-    /**
-     * 获取任务数据
-     * @return Map
-     */
-    Map<String,String> getJobData();
+//    /**
+//     * 获取任务数据
+//     * @return Map
+//     */
+//    Map<String,String> getJobData();
 
     /**
      * 获取原始任务数据json形式
@@ -45,14 +46,14 @@ public interface JobExecutionContext {
 
     Date getFireTime() ;
 
-    Date getScheduledFireTime();
+//    Date getScheduledFireTime();
+//
+//    Date getPrevFireTime();
+//
+//    Date getNextFireTime() ;
+//
+//    long getJobRunTime() ;
 
-    Date getPrevFireTime();
+    JobExecutionContext setJobResult(String jobResult);
 
-    Date getNextFireTime() ;
-
-    long getJobRunTime() ;
-
-
-    
 }

@@ -15,4 +15,5 @@ public interface LockProvider {
     Optional<SimpleLock> lock( LockConfiguration lockConfiguration);
 
     StorageAccessor getStorageAccessor();
+    Configuration getConfiguration() ;
 }

@@ -17,6 +17,7 @@
     </developers>
     <modules>
         <module>mee_timed</module>
+        <module>mee_timed-test</module>
 
         <!-- shedlock -->
         <module>shedlock/shedlock-core</module>
@@ -68,6 +69,11 @@
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
             </plugin>
         </plugins>
     </build>

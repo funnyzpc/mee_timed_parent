@@ -1,7 +1,7 @@
-
 package com.mee.timed.config;
 
 import com.mee.timed.ScheduledTaskHolder;
+import com.mee.timed.TaskScheduler;
 import com.mee.timed.TimedConfigurer;
 import com.mee.timed.annotation.MeeTimed;
 import com.mee.timed.annotation.MeeTimeds;
@@ -9,7 +9,6 @@ import com.mee.timed.data.MeeTimedProperties;
 import com.mee.timed.template.ClockProvider;
 import com.mee.timed.template.Configuration;
 import com.mee.timed.template.JdbcStorageBasedLockProvider;
-import com.mee.timed.template.JdbcTemplateStorageAccessor;
 import com.mee.timed.template.LockConfiguration;
 import com.mee.timed.template.LockProvider;
 import org.apache.commons.logging.Log;
@@ -43,7 +42,6 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -282,15 +280,14 @@ public class MeeTimedAnnotationBeanPostProcessor
 			Assert.state(this.beanFactory != null, "BeanFactory must be set to find scheduler by type");
 			try {
 				// Search for TaskScheduler bean...
-				this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, false));
+				this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, com.mee.timed.TaskScheduler.class, false));
 			}
 			catch (NoUniqueBeanDefinitionException ex) {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Could not find unique TaskScheduler bean - attempting to resolve by name: " +
-							ex.getMessage());
+					logger.trace("Could not find unique TaskScheduler bean - attempting to resolve by name:{} " + ex.getMessage());
 				}
 				try {
-					this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, true));
+					this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, com.mee.timed.TaskScheduler.class, true));
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
 					if (logger.isInfoEnabled()) {
@@ -304,8 +301,7 @@ public class MeeTimedAnnotationBeanPostProcessor
 			}
 			catch (NoSuchBeanDefinitionException ex) {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Could not find default TaskScheduler bean - attempting to find ScheduledExecutorService: " +
-							ex.getMessage());
+					logger.trace("Could not find default TaskScheduler bean - attempting to find ScheduledExecutorService: " + ex.getMessage());
 				}
 				// Search for ScheduledExecutorService bean next...
 				try {
@@ -313,8 +309,7 @@ public class MeeTimedAnnotationBeanPostProcessor
 				}
 				catch (NoUniqueBeanDefinitionException ex2) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("Could not find unique ScheduledExecutorService bean - attempting to resolve by name: " +
-								ex2.getMessage());
+						logger.trace("Could not find unique ScheduledExecutorService bean - attempting to resolve by name: " + ex2.getMessage());
 					}
 					try {
 						this.registrar.setScheduler(resolveSchedulerBean(this.beanFactory, ScheduledExecutorService.class, true));
@@ -331,8 +326,7 @@ public class MeeTimedAnnotationBeanPostProcessor
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("Could not find default ScheduledExecutorService bean - falling back to default: " +
-								ex2.getMessage());
+						logger.trace("Could not find default ScheduledExecutorService bean - falling back to default: " + ex2.getMessage());
 					}
 					// Giving up -> falling back to default scheduler within the registrar...
 					logger.info("No TaskScheduler/ScheduledExecutorService bean found for scheduled processing");
@@ -532,6 +526,7 @@ public class MeeTimedAnnotationBeanPostProcessor
 			}
 		}
 		catch (IllegalArgumentException ex) {
+			ex.printStackTrace();
 			throw new IllegalStateException("Encountered invalid @Scheduled method '" + method.getName() + "': " + ex.getMessage());
 		}
 	}
@@ -546,10 +541,12 @@ public class MeeTimedAnnotationBeanPostProcessor
 	 * @see ScheduledMethodRunnable#ScheduledMethodRunnable(Object, Method)
 	 */
 	protected Runnable createRunnable(Object target, Method method,MeeTimed scheduled) {
-		Assert.isTrue(method.getParameterCount() == 0, "Only no-arg methods may be annotated with @Scheduled");
+//		Assert.isTrue(method.getParameterCount() == 0, "Only no-arg methods may be annotated with @MeeTimed");
+		if(method.getParameterCount()>1 || (method.getParameterCount()>=1 && !("com.mee.timed.JobExecutionContext".equals(method.getParameterTypes()[0].getName()) ) )){
+			throw new IllegalArgumentException("Only one-arg methods may be annotated with @MeeTimed");
+		}
 		Method invocableMethod = AopUtils.selectInvocableMethod(method, target.getClass());
 //		return new ScheduledMethodRunnable(target, invocableMethod);
-//		return new TimedMethodRunnable(target, invocableMethod);
 		// 初始化app表数据
 		String key = TimedMethodRunnable.buildKey(scheduled, method);
 		LockConfiguration lockConfiguration = new LockConfiguration(ClockProvider.now().plusMillis(-1),key,Duration.ofMillis(0),Duration.ofMillis(0));

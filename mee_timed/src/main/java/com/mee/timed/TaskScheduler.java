@@ -1,18 +1,3 @@
-/*
- * Copyright 2002-2020 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.mee.timed;
 
@@ -61,24 +46,27 @@ public interface TaskScheduler {
 		return Clock.systemDefaultZone();
 	}
 
-	/**
-	 * Schedule the given {@link Runnable}, invoking it whenever the trigger
-	 * indicates a next execution time.
-	 * <p>Execution will end once the scheduler shuts down or the returned
-	 * {@link ScheduledFuture} gets cancelled.
-	 * @param task the Runnable to execute whenever the trigger fires
-	 * @param trigger an implementation of the {@link Trigger} interface,
-	 * e.g. a {@link org.springframework.scheduling.support.CronTrigger} object
-	 * wrapping a cron expression
-	 * @return a {@link ScheduledFuture} representing pending completion of the task,
-	 * or {@code null} if the given Trigger object never fires (i.e. returns
-	 * {@code null} from {@link Trigger#nextExecutionTime})
-	 * @throws org.springframework.core.task.TaskRejectedException if the given task was not accepted
-	 * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
-	 * @see org.springframework.scheduling.support.CronTrigger
-	 */
+//	/**
+//	 * Schedule the given {@link Runnable}, invoking it whenever the trigger
+//	 * indicates a next execution time.
+//	 * <p>Execution will end once the scheduler shuts down or the returned
+//	 * {@link ScheduledFuture} gets cancelled.
+//	 * @param task the Runnable to execute whenever the trigger fires
+//	 * @param trigger an implementation of the {@link Trigger} interface,
+//	 * e.g. a {@link org.springframework.scheduling.support.CronTrigger} object
+//	 * wrapping a cron expression
+//	 * @return a {@link ScheduledFuture} representing pending completion of the task,
+//	 * or {@code null} if the given Trigger object never fires (i.e. returns
+//	 * {@code null} from {@link Trigger#nextExecutionTime})
+//	 * @throws org.springframework.core.task.TaskRejectedException if the given task was not accepted
+//	 * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
+//	 * @see org.springframework.scheduling.support.CronTrigger
+//	 */
+//	@Nullable
+//	ScheduledFuture<?> schedule(TimedRescheduling task, Trigger trigger);
+
 	@Nullable
-	ScheduledFuture<?> schedule(TimedRescheduling task, Trigger trigger);
+	ScheduledFuture<?> schedule(Runnable task, Trigger trigger);
 
 	/**
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time.

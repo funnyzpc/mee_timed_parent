@@ -1,7 +1,10 @@
 package com.mee.timed.template;
 
+import com.mee.timed.data.AppColumnNames;
+import com.mee.timed.data.ColumnNames;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.Duration;
 import java.util.TimeZone;
 
 import static java.util.Objects.requireNonNull;
@@ -22,8 +25,10 @@ public final class Configuration {
     private String tableName;
     private String tableAppName;
     private TimeZone timeZone;
-    private ColumnNames columnNames = new ColumnNames("name", "lock_until", "locked_at", "locked_by");
-    private AppColumnNames appColumnNames = new AppColumnNames("application", "host_ip", "host_name", "state","update_time");
+//    private ColumnNames columnNames = new ColumnNames("name", "lock_until", "locked_at", "locked_by");
+    private ColumnNames columnNames = new ColumnNames("NAME", "LOCK_UNTIL", "LOCKED_AT", "LOCKED_BY", "APPLICATION", "HOST_IP", "STATE", "UPDATE_TIME", "DATA", "LABEL");
+
+    private AppColumnNames appColumnNames = new AppColumnNames("APPLICATION", "HOST_IP", "HOST_NAME", "STATE","UPDATE_TIME");
 
     /**
      * 实例所在主机名称
@@ -32,19 +37,24 @@ public final class Configuration {
     /**
      * 实例所在主机名称
      */
-    private final String hostName=Utils.getHostname();
+    private final String hostName= TimedUtils.getHostname();
     /**
      * 实例所在主机IP
      */
-    private final String hostIP=Utils.getHostaddress();
+    private final String hostIP= TimedUtils.getHostaddress();
     private boolean useDbTime=true;
     private Integer isolationLevel;
 //    // add
 //    private final boolean hasAppTable=false;
 
+    // 最长锁定时间
+    private Duration defaultMostFor=Duration.ofMinutes(1);
+    // 最短锁定时间
+    private Duration defaultLeastFor=Duration.ofSeconds(1);
+
     public Configuration(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = requireNonNull(jdbcTemplate, "jdbcTemplate can not be null");
-        this.lockedByValue = Utils.getHostname();
+        this.lockedByValue = TimedUtils.getHostname();
         this.useDbTime=Boolean.TRUE;
     }
 
@@ -192,9 +202,9 @@ public final class Configuration {
         requireNonNull((null==lockedTypeEnum || lockedTypeEnum.equals(LockedTypeEnum.OTHER))?null:"", "columnNames can not be null");
         switch (lockedTypeEnum){
             case HOST_IP:
-                this.lockedByValue= Utils.getHostaddress();
+                this.lockedByValue= TimedUtils.getHostaddress();
             case HOST_NAME:
-                this.lockedByValue=Utils.getHostname();
+                this.lockedByValue= TimedUtils.getHostname();
             case OTHER:
                 this.lockedByValue = null;
         }
@@ -215,8 +225,28 @@ public final class Configuration {
         return this;
     }
 
+    public Duration getDefaultMostFor() {
+        return defaultMostFor;
+    }
+
+    public Configuration setDefaultMostFor(Duration defaultMostFor) {
+        this.defaultMostFor = defaultMostFor;
+        return this;
+    }
+
+    public Duration getDefaultLeastFor() {
+        return defaultLeastFor;
+    }
+
+    public Configuration setDefaultLeastFor(Duration defaultLeastFor) {
+        this.defaultLeastFor = defaultLeastFor;
+        return this;
+    }
+
     public static enum LockedTypeEnum{
+        // IP地址
         HOST_IP,
+        // 主机名称
         HOST_NAME,
         // NO use
         OTHER;

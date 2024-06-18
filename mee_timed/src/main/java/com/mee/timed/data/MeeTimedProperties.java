@@ -1,13 +1,12 @@
 package com.mee.timed.data;
 
-import com.mee.timed.template.AppColumnNames;
-import com.mee.timed.template.ColumnNames;
 import com.mee.timed.template.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
+import java.time.Duration;
 import java.util.TimeZone;
 
 /**
@@ -49,11 +48,11 @@ public class MeeTimedProperties {
     /**
      * job表列名
      */
-    private ColumnNames columnNames = new ColumnNames("name", "lock_until", "locked_at", "locked_by");
+    private ColumnNames columnNames = new ColumnNames("NAME", "LOCK_UNTIL", "LOCKED_AT", "LOCKED_BY", "APPLICATION", "HOST_IP", "STATE", "UPDATE_TIME", "DATA", "LABEL");
     /**
      * app表列名
      */
-    private AppColumnNames appColumnNames = new AppColumnNames("application", "host_ip", "host_name", "state","update_time");
+    private AppColumnNames appColumnNames = new AppColumnNames("APPLICATION", "HOST_IP", "HOST_NAME", "STATE","UPDATE_TIME");
     /**
      * job表名
      */
@@ -66,6 +65,15 @@ public class MeeTimedProperties {
      * 锁定类型
      */
     private  Configuration.LockedTypeEnum lockedByType;
+
+    /**
+     * 最长锁定时间,超过这个时间必须会释放 (PT1M:1分钟 PT1S:1秒 PT1H:1小时)
+     */
+    private String defaultMostFor;
+    /**
+     * 最短锁定时间,即使时间内提前执行完也得等这么久 (PT1M:1分钟 PT1S:1秒 PT1H:1小时)
+     */
+    private String defaultLeastFor;
 //    /**
 //     * 是否有app表配置
 //     */
@@ -176,22 +184,24 @@ public class MeeTimedProperties {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "MeeTimedProperties{" +
-                "shed='" + shed + '\'' +
-                ", startupDelay=" + startupDelay +
-                ", applicationName='" + applicationName + '\'' +
-                ", isolationLevel=" + isolationLevel +
-                ", useDbTime=" + useDbTime +
-                ", timeZone='" + timeZone + '\'' +
-                ", columnNames=" + columnNames +
-                ", appColumnNames=" + appColumnNames +
-                ", tableName='" + tableName + '\'' +
-                ", tableAppName='" + tableAppName + '\'' +
-                ", lockedByType=" + lockedByType +
-                '}';
+    public String getDefaultMostFor() {
+        return defaultMostFor;
     }
+
+    public MeeTimedProperties setDefaultMostFor(String defaultMostFor) {
+        this.defaultMostFor = defaultMostFor;
+        return this;
+    }
+
+    public String getDefaultLeastFor() {
+        return defaultLeastFor;
+    }
+
+    public MeeTimedProperties setDefaultLeastFor(String defaultLeastFor) {
+        this.defaultLeastFor = defaultLeastFor;
+        return this;
+    }
+
     public Configuration toCfg(JdbcTemplate jdbcTemplate){
         Configuration configuration = new Configuration(jdbcTemplate)
 //                .setTableName("SYS_SHEDLOCK_JOB")
@@ -227,6 +237,34 @@ public class MeeTimedProperties {
         if(null!=this.getLockedByType()){
             configuration.setLockedByValue(this.getLockedByType());
         }
+
+        if(null!=this.getDefaultLeastFor() && !"".equals(this.getDefaultLeastFor().trim())){
+            configuration.setDefaultLeastFor(Duration.parse(this.getDefaultLeastFor()));
+        }
+        if(null!=this.getDefaultMostFor() && !"".equals(this.getDefaultMostFor().trim())){
+            configuration.setDefaultMostFor(Duration.parse(this.getDefaultMostFor()));
+        }
         return configuration;
     }
+
+    @Override
+    public String toString() {
+        return "MeeTimedProperties{" +
+                "shed='" + shed + '\'' +
+                ", startupDelay=" + startupDelay +
+                ", applicationName='" + applicationName + '\'' +
+                ", isolationLevel=" + isolationLevel +
+                ", useDbTime=" + useDbTime +
+                ", timeZone='" + timeZone + '\'' +
+                ", columnNames=" + columnNames +
+                ", appColumnNames=" + appColumnNames +
+                ", tableName='" + tableName + '\'' +
+                ", tableAppName='" + tableAppName + '\'' +
+                ", lockedByType=" + lockedByType +
+                ", defaultMostFor='" + defaultMostFor + '\'' +
+                ", defaultLeastFor='" + defaultLeastFor + '\'' +
+                '}';
+    }
+
+
 }

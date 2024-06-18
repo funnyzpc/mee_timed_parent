@@ -25,6 +25,11 @@ public interface SimpleLock {
      */
     void unlock();
 
+    /**
+     * 解锁
+     */
+    void doUnlock();
+
 //    /**
 //     * Extends the lock. If the lock can be extended a new lock is returned. After calling extend, no other operation
 //     * can be called on current lock.

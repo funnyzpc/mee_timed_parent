@@ -8,6 +8,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>net.javacrumbs.shedlock</groupId>
     <artifactId>shedlock-spring</artifactId>
     <version>4.47.0</version>
 
@@ -15,7 +16,7 @@
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-core</artifactId>
-            <version>${project.version}</version>
+            <version>${shedlock.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
