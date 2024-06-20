@@ -471,24 +471,23 @@ public class MeeTimedAnnotationBeanPostProcessor
 				tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
 			}
 
-			String fixedDelayString = scheduled.fixedDelayString();
-			if (StringUtils.hasText(fixedDelayString)) {
-				if (this.embeddedValueResolver != null) {
-					fixedDelayString = this.embeddedValueResolver.resolveStringValue(fixedDelayString);
-				}
-				if (StringUtils.hasLength(fixedDelayString)) {
-					Assert.isTrue(!processedSchedule, errorMessage);
-					processedSchedule = true;
-					try {
-						fixedDelay = convertToMillis(fixedDelayString, scheduled.timeUnit());
-					}
-					catch (RuntimeException ex) {
-						throw new IllegalArgumentException(
-								"Invalid fixedDelayString value \"" + fixedDelayString + "\" - cannot parse into long");
-					}
-					tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
-				}
-			}
+//			String fixedDelayString = scheduled.fixedDelayString();
+//			if (StringUtils.hasText(fixedDelayString)) {
+//				if (this.embeddedValueResolver != null) {
+//					fixedDelayString = this.embeddedValueResolver.resolveStringValue(fixedDelayString);
+//				}
+//				if (StringUtils.hasLength(fixedDelayString)) {
+//					Assert.isTrue(!processedSchedule, errorMessage);
+//					processedSchedule = true;
+//					try {
+//						fixedDelay = convertToMillis(fixedDelayString, scheduled.timeUnit());
+//					}
+//					catch (RuntimeException ex) {
+//						throw new IllegalArgumentException("Invalid fixedDelayString value \"" + fixedDelayString + "\" - cannot parse into long");
+//					}
+//					tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
+//				}
+//			}
 
 			// Check fixed rate
 			long fixedRate = convertToMillis(scheduled.fixedRate(), scheduled.timeUnit());
@@ -497,24 +496,24 @@ public class MeeTimedAnnotationBeanPostProcessor
 				processedSchedule = true;
 				tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
 			}
-			String fixedRateString = scheduled.fixedRateString();
-			if (StringUtils.hasText(fixedRateString)) {
-				if (this.embeddedValueResolver != null) {
-					fixedRateString = this.embeddedValueResolver.resolveStringValue(fixedRateString);
-				}
-				if (StringUtils.hasLength(fixedRateString)) {
-					Assert.isTrue(!processedSchedule, errorMessage);
-					processedSchedule = true;
-					try {
-						fixedRate = convertToMillis(fixedRateString, scheduled.timeUnit());
-					}
-					catch (RuntimeException ex) {
-						throw new IllegalArgumentException(
-								"Invalid fixedRateString value \"" + fixedRateString + "\" - cannot parse into long");
-					}
-					tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
-				}
-			}
+//			String fixedRateString = scheduled.fixedRateString();
+//			if (StringUtils.hasText(fixedRateString)) {
+//				if (this.embeddedValueResolver != null) {
+//					fixedRateString = this.embeddedValueResolver.resolveStringValue(fixedRateString);
+//				}
+//				if (StringUtils.hasLength(fixedRateString)) {
+//					Assert.isTrue(!processedSchedule, errorMessage);
+//					processedSchedule = true;
+//					try {
+//						fixedRate = convertToMillis(fixedRateString, scheduled.timeUnit());
+//					}
+//					catch (RuntimeException ex) {
+//						throw new IllegalArgumentException(
+//								"Invalid fixedRateString value \"" + fixedRateString + "\" - cannot parse into long");
+//					}
+//					tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
+//				}
+//			}
 
 			// Check whether we had any attribute set
 			Assert.isTrue(processedSchedule, errorMessage);
@@ -548,8 +547,9 @@ public class MeeTimedAnnotationBeanPostProcessor
 		Method invocableMethod = AopUtils.selectInvocableMethod(method, target.getClass());
 //		return new ScheduledMethodRunnable(target, invocableMethod);
 		// 初始化app表数据
-		String key = TimedMethodRunnable.buildKey(scheduled, method);
-		LockConfiguration lockConfiguration = new LockConfiguration(ClockProvider.now().plusMillis(-1),key,Duration.ofMillis(0),Duration.ofMillis(0));
+//		String key = TimedMethodRunnable.buildKey(scheduled, method);
+//		LockConfiguration lockConfiguration = new LockConfiguration(ClockProvider.now().plusMillis(-1),key,Duration.ofMillis(0),Duration.ofMillis(0));
+		LockConfiguration lockConfiguration = LockConfiguration.buildJobData(method, scheduled);
 		this.lockProvider.getStorageAccessor().insertJobRecord(lockConfiguration);
 		// 构建任务runner
 		return new TimedMethodRunnable(target, invocableMethod,scheduled,this.lockProvider);

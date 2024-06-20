@@ -11,7 +11,8 @@ class PostgresSqlStatementsSource extends SqlStatementsSource {
         // INSERT INTO shedlock(name, lock_until, locked_at, locked_by) VALUES(:name, :lockUntil, :now, :lockedBy)
         //      ON CONFLICT (name) DO UPDATE SET lock_until = :lockUntil, locked_at = :now, locked_by = :lockedBy WHERE shedlock.lock_until <= :now
         return super.getInsertStatement() + " ON CONFLICT (" + application() +" , "+ name() + ") DO UPDATE " +
-            "SET " + lockUntil() + " = :lockUntil, " + lockedAt() + " = :now, " + lockedBy() + " = :lockedBy, " +hostIP()+" = :hostIP, " +updateTime()+" = CURRENT_TIMESTAMP "+
+            "SET " + lockUntil() + " = :lockUntil, " + lockedAt() + " = :now, " + lockedBy() + " = :lockedBy, " +hostIP()+" = :hostIP, " +updateTime()+" = CURRENT_TIMESTAMP, "+
+                callType()+" = :callType, "+callValue()+" = :callValue" +
             "WHERE " + tableName() + "." + lockUntil() + " <= :now AND " + tableName() + "."+state()+" = :state " +
             super.appCause();
     }

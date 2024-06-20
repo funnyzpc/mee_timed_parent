@@ -121,7 +121,7 @@ class SqlStatementsSource {
     String getInsertStatement() {
         // INSERT INTO shedlock(name, lock_until, locked_at, locked_by) VALUES(:name, :lockUntil, :now, :lockedBy)
 //        return "INSERT INTO " + tableName() + "(" + application() + ", " +name() + ", "+hostIP() + ", " + lockUntil() + ", " + lockedAt() + ", " + lockedBy()+ ", " + state() +", "+updateTime()+ ") VALUES(:application, :name, :hostIP, :lockUntil, :now, :lockedBy, :state, :updateTime)";
-        return "INSERT INTO " + tableName() + "(" + application() + ", " +name() + ", "+hostIP() + ", " + lockUntil() + ", " + lockedAt() + ", " + lockedBy()+ ", " + state() +", "+updateTime()+ ") VALUES(:application, :name, :hostIP, :now, :now, :lockedBy, :state, :updateTime)";
+        return "INSERT INTO " + tableName() + "(" + application() + ", " +name() + ", "+hostIP() + ", " + lockUntil() + ", " + lockedAt() + ", " + lockedBy()+ ", " + state() +", "+updateTime()+", "+callType()+", "+callValue()+ ") VALUES(:application, :name, :hostIP, :now, :now, :lockedBy, :state, :updateTime, :callType, :callValue)";
     }
 
     String getAppInsertStatement() {
@@ -186,6 +186,13 @@ class SqlStatementsSource {
     }
     String label(){
         return configuration.getColumnNames().getLabel();
+    }
+    // todo ...
+    String callType(){
+        return "CALL_TYPE";
+    }
+    String callValue(){
+        return "CALL_VALUE";
     }
 
     // -------- app fields ----------

@@ -40,12 +40,12 @@ class OracleServerTimeStatementsSource extends SqlStatementsSource {
        // INSERT (application,name,host_ip,locked_at,lock_until,locked_by,state,update_time ) VALUES (TT.application,TT.name,TT.host_ip,TT.locked_at,TT.lock_until,TT.locked_by,TT.state,TT.update_time);
 
         return "MERGE INTO "+tableName()+" T \n" +
-            "USING ( SELECT :application as "+application()+",:name as "+name()+",:hostIP as "+hostIP()+", "+now+" as "+lockedAt()+", "+now+" as "+lockUntil()+",:lockedBy as "+lockedBy()+",:state as "+state()+", :updateTime as "+updateTime()+" FROM DUAL ) TT\n" +
+            "USING ( SELECT :application as "+application()+",:name as "+name()+",:hostIP as "+hostIP()+", "+now+" as "+lockedAt()+", "+now+" as "+lockUntil()+",:lockedBy as "+lockedBy()+",:state as "+state()+", :updateTime as "+updateTime()+", :callType as "+callType()+", :callValue as "+callValue()+" FROM DUAL ) TT\n" +
             "ON (T."+application()+" = TT."+application()+" AND T."+name()+" = TT."+name()+") \n" +
             "WHEN MATCHED THEN \n" +
             "UPDATE SET T."+hostIP()+" = TT."+hostIP()+" , T."+updateTime()+" = TT."+updateTime()+" \n" +
             "    WHEN NOT MATCHED THEN \n" +
-            "INSERT ( "+application()+","+name()+","+hostIP()+","+lockedAt()+","+lockUntil()+","+lockedBy()+","+state()+","+updateTime()+" ) VALUES (TT."+application()+",TT."+name()+",TT."+hostIP()+",TT."+lockedAt()+",TT."+lockUntil()+",TT."+lockedBy()+",TT."+state()+",TT."+updateTime()+" )";
+            "INSERT ( "+application()+","+name()+","+hostIP()+","+lockedAt()+","+lockUntil()+","+lockedBy()+","+state()+","+updateTime()+", "+callType()+", "+callValue()+" ) VALUES (TT."+application()+",TT."+name()+",TT."+hostIP()+",TT."+lockedAt()+",TT."+lockUntil()+",TT."+lockedBy()+",TT."+state()+",TT."+updateTime()+",TT."+callType()+",TT."+callValue()+" )";
 //        return "INSERT INTO " + tableName() + "(" +application()+", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+ ") VALUES(:name, " + now + ", " + now + ", :lockedBy, :state, SYSTIMESTAMP(0))";
     }
     @Override
@@ -103,8 +103,11 @@ class OracleServerTimeStatementsSource extends SqlStatementsSource {
         params.put("application", configuration.getApplication());
         params.put("hostIP", configuration.getHostIP());
         params.put("hostName", configuration.getHostName());
-        params.put("state","1");
+        params.put("state",configuration.getState());
         params.put("updateTime",new Date());
+        // ext
+        params.put("callType",lockConfiguration.getCallType());
+        params.put("callValue",lockConfiguration.getCallValue());
         return params;
     }
 }

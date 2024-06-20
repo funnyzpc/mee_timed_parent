@@ -20,9 +20,10 @@ class PostgresSqlServerTimeStatementsSource extends SqlStatementsSource {
     @Override
     String getInsertStatement() {
         // INSERT INTO shedlock(name, lock_until, locked_at, locked_by) VALUES(:name, timezone('utc', CURRENT_TIMESTAMP) + cast(:lockAtMostForInterval as interval), timezone('utc', CURRENT_TIMESTAMP), :lockedBy) ON CONFLICT (name) DO UPDATE SET lock_until = timezone('utc', CURRENT_TIMESTAMP) + cast(:lockAtMostForInterval as interval), locked_at = timezone('utc', CURRENT_TIMESTAMP), locked_by = :lockedBy WHERE shedlock.name = :name AND shedlock.lock_until <= timezone('utc', CURRENT_TIMESTAMP)
-        return "INSERT INTO " + tableName() + "(" +application()+ ", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+ ") VALUES(:application, :name, :hostIP, "+now+", "+now+", :lockedBy, :state, CURRENT_TIMESTAMP)" +
+        return "INSERT INTO " + tableName() + "(" +application()+ ", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+", "+callType()+", "+callValue()+ ") VALUES(:application, :name, :hostIP, "+now+", "+now+", :lockedBy, :state, CURRENT_TIMESTAMP, :callType, :callValue)" +
 //            " ON CONFLICT (" + application()+", "+name() + ") DO UPDATE" + updateClause();
-            " ON CONFLICT (" + application()+", "+name() + ") DO UPDATE  SET "+ hostIP() + " = :hostIP, " +updateTime()+" = CURRENT_TIMESTAMP";
+            " ON CONFLICT (" + application()+", "+name() + ") DO UPDATE  SET "+ hostIP() + " = :hostIP, " +updateTime()+" = CURRENT_TIMESTAMP, "+
+                callType()+" = :callType, "+callValue()+" = :callValue" ;
     }
     @Override
     String getAppInsertStatement() {
@@ -80,8 +81,11 @@ class PostgresSqlServerTimeStatementsSource extends SqlStatementsSource {
         params.put("application", configuration.getApplication());
         params.put("hostIP",configuration.getHostIP());
         params.put("hostName", configuration.getHostName());
-        params.put("state","1");
+        params.put("state",configuration.getState());
         params.put("updateTime",new Date());
+        // ext
+        params.put("callType",lockConfiguration.getCallType());
+        params.put("callValue",lockConfiguration.getCallValue());
         return params;
     }
 }

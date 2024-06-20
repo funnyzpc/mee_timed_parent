@@ -2,9 +2,14 @@
 package com.mee.timed.template;
 
 
+import com.mee.timed.annotation.MeeTimed;
+import com.mee.timed.config.TimedMethodRunnable;
+
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -27,6 +32,15 @@ public class LockConfiguration {
      * 即使持有锁的任务提前完成，锁也将至少持有此持续时间。
      */
     private final Duration lockAtLeastFor;
+
+    /**
+     * 调用类型：cron 、fixRate、fixDelay
+     */
+    private String callType;
+    /**
+     * 调用时间值
+     */
+    private String callValue;
 //    /**
 //     * 应用名称
 //     */
@@ -124,7 +138,25 @@ public class LockConfiguration {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
-//    public static String getSchedName() {
+
+    public String getCallType() {
+        return callType;
+    }
+
+    public LockConfiguration setCallType(String callType) {
+        this.callType = callType;
+        return this;
+    }
+
+    public String getCallValue() {
+        return callValue;
+    }
+
+    public LockConfiguration setCallValue(String callValue) {
+        this.callValue = callValue;
+        return this;
+    }
+    //    public static String getSchedName() {
 //        return schedName;
 //    }
 //
@@ -134,6 +166,33 @@ public class LockConfiguration {
 //    public static void initProperties(String schedName){
 //        LockConfiguration.schedName = schedName;
 //    }
+
+    public static LockConfiguration buildJobData(Method method, MeeTimed scheduled){
+        final String cron = scheduled.cron();
+        final long rate = scheduled.fixedRate();
+        final long delay = scheduled.fixedDelay();
+        final TimeUnit timeUnit = scheduled.timeUnit();
+
+        String key = TimedMethodRunnable.buildKey(scheduled, method);
+        LockConfiguration lockConfiguration = new LockConfiguration(ClockProvider.now().plusMillis(-1),key,Duration.ofMillis(0),Duration.ofMillis(0));
+        String callType = null;
+        String callValue = null;
+        if(!"".equals(cron)){
+            callType = "CRON";
+            callValue = cron.trim();
+        }else if( -1!=rate){
+            callType = "RATE";
+            callValue = String.valueOf(timeUnit.toMillis(rate));
+        }else if( -1!=delay){
+            callType = "DELAY";
+            callValue = String.valueOf(timeUnit.toMillis(delay));
+        }else{
+            throw new IllegalArgumentException("@MeeTimed 配置参数异常!");
+        }
+        lockConfiguration.setCallType(callType);
+        lockConfiguration.setCallValue(callValue);
+        return lockConfiguration;
+    }
 
     @Override
     public String toString() {

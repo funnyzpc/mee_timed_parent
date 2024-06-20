@@ -30,7 +30,7 @@ class MySqlServerTimeStatementsSource extends SqlStatementsSource {
     @Override
     String getInsertStatement() {
 //        return  "INSERT INTO " + tableName() + "(" +application()+ ", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+ ") VALUES(:application, :name, :hostIP, " + lockAtMostFor + ", " + now + ", :lockedBy, :state, CURRENT_TIMESTAMP)" +
-        return  "INSERT INTO " + tableName() + "(" +application()+ ", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+ ") VALUES(:application, :name, :hostIP, " + now + ", " + now + ", :lockedBy, :state, CURRENT_TIMESTAMP)" +
+        return  "INSERT INTO " + tableName() + "(" +application()+ ", "+ name() + ", " +hostIP()+", "+ lockUntil() + ", " + lockedAt() + ", " + lockedBy() +", "+state()+", "+updateTime()+", "+callType()+", "+callValue()+ ") VALUES(:application, :name, :hostIP, " + now + ", " + now + ", :lockedBy, :state, CURRENT_TIMESTAMP, :callType, :callValue)" +
             " ON DUPLICATE KEY UPDATE "+hostIP()+"=VALUES("+hostIP()+"), "+updateTime()+" = VALUES("+updateTime()+") ";
     }
     @Override
@@ -72,6 +72,9 @@ class MySqlServerTimeStatementsSource extends SqlStatementsSource {
         params.put("hostName", configuration.getHostName());
         params.put("state",configuration.getState());
         params.put("updateTime",new Date());
+        // ext
+        params.put("callType",lockConfiguration.getCallType());
+        params.put("callValue",lockConfiguration.getCallValue());
         return params;
     }
 }
