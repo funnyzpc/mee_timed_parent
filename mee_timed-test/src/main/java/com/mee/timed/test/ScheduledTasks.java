@@ -16,20 +16,24 @@
 package com.mee.timed.test;
 
 import com.mee.timed.annotation.MeeTimed;
+import com.mee.timed.annotation.MeeTimeds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class ScheduledTasks {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTasks.class);
 
-    @MeeTimed(fixedRate = 10000,lockName = "exec1",lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S" )
+    @MeeTimeds({
+            @MeeTimed(fixedRate = 10000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S" ),
+            @MeeTimed(fixedDelay = 8000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S" ),
+    })
     public void exec01() {
         LOGGER.info("=====> [exec01] Already Executed! <=====");
     }
 
-    @MeeTimed(cron = "0 */2 * * * *",lockName = "exec2",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+    @MeeTimed(cron = "0 */2 * * * *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
     public void exec02() {
         LOGGER.info("=====> [exec02] Already Executed! <=====");
     }
