@@ -60,24 +60,13 @@ public @interface MeeTimed {
 
 
 	/**
-	 * A cron-like expression, extending the usual UN*X definition to include triggers
-	 * on the second, minute, hour, day of month, month, and day of week.
-	 * <p>For example, {@code "0 * * * * MON-FRI"} means once per minute on weekdays
-	 * (at the top of the minute - the 0th second).
-	 * <p>The fields read from left to right are interpreted as follows.
-	 * <ul>
-	 * <li>second</li>
-	 * <li>minute</li>
-	 * <li>hour</li>
-	 * <li>day of month</li>
-	 * <li>month</li>
-	 * <li>day of week</li>
-	 * </ul>
-	 * <p>The special value {@link #CRON_DISABLED "-"} indicates a disabled cron
-	 * trigger, primarily meant for externally specified values resolved by a
-	 * <code>${...}</code> placeholder.
+	 * You need quartz CRON expression （您需要使用quartz的表达式，而不是spring提供的schedule的表达式）
+	 *
+	 * 使用quartz的cron表达式可以表达 诸如 <code>0 30 10 L * ?</code>(每月最后一天的十点半) <code>0 0/4 * ? * MON-FRI</code>(周一至周五内每四分钟) 这样的表达式
+	 *
 	 * @return an expression that can be parsed to a cron schedule
 	 * @see org.springframework.scheduling.support.CronExpression#parse(String)
+	 *
 	 */
 	String cron() default "";
 
@@ -89,6 +78,7 @@ public @interface MeeTimed {
 	 * @since 4.0
 	 * @see org.springframework.scheduling.support.CronTrigger#CronTrigger(String, java.util.TimeZone)
 	 * @see java.util.TimeZone
+	 * 如果指定时区了则以指定时区的时间执行任务，默认是本地时区
 	 */
 	String zone() default "";
 
@@ -168,6 +158,8 @@ public @interface MeeTimed {
 	/** ========================================================= LOCK ==================================================== **/
 	/**
 	 * Lock name.
+	 *  锁定名称,一般用在@MeeTimeds定义的多执行时间中，本质上是为了区分任务锁；多时间下若不使用此则可能共用一把锁，造成任务丢失
+	 *  此锁定名称仅在 @MeeTimeds 内不重复即可
 	 */
 	String lockName()  default "";
 
@@ -176,6 +168,7 @@ public @interface MeeTimed {
 	 * This is just a fallback, under normal circumstances the lock is released as soon the tasks finishes. Can be any format
 	 * supported by <a href="https://docs.micronaut.io/latest/guide/config.html#_duration_conversion">Duration Conversion</a>
 	 * <p>
+	 * 最大锁定时间：最大锁定时间为保护任务在最坏的情况下的解锁时间，比如任务实际执行时间超过了最低锁定时间(lockAtLeastFor),如果在最大锁定时间仍未执行完成则会自动解锁
 	 */
 	String lockAtMostFor() default "";
 
@@ -185,6 +178,8 @@ public @interface MeeTimed {
 	 * be theoretically executed more than once (one node after another). By setting this parameter, you can make sure that the
 	 * lock will be kept at least for given period of time. Can be any format
 	 * supported by <a href="https://docs.micronaut.io/latest/guide/config.html#_duration_conversion">Duration Conversion</a>
+	 * 最低锁定时间：如果执行时间<最低锁定时间 则下一次任务只可以在穗子锁定时间后执行
+	 * 			   如果不设置则它的锁定时间即为执行时间(每次执行完成后会解锁)
 	 */
 	String lockAtLeastFor() default "";
 

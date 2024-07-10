@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledFuture;
 
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.scheduling.Trigger;
 
 /**
  * Task scheduler interface that abstracts the scheduling of

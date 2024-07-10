@@ -7,12 +7,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.config.FixedDelayTask;
-import org.springframework.scheduling.config.FixedRateTask;
-import org.springframework.scheduling.config.IntervalTask;
-import org.springframework.scheduling.config.Task;
-import org.springframework.scheduling.config.TriggerTask;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -257,16 +251,16 @@ public class TimedTaskRegistrar implements ScheduledTaskHolder, InitializingBean
 		this.triggerTasks.add(task);
 	}
 
-	/**
-	 * Add a {@link Runnable} task to be triggered per the given cron {@code expression}.
-	 * <p>As of Spring Framework 5.2, this method will not register the task if the
-	 * {@code expression} is equal to {@link #CRON_DISABLED}.
-	 */
-	public void addCronTask(Runnable task, String expression) {
-		if (!CRON_DISABLED.equals(expression)) {
-			addCronTask(new CronTask(task, expression));
-		}
-	}
+//	/**
+//	 * Add a {@link Runnable} task to be triggered per the given cron {@code expression}.
+//	 * <p>As of Spring Framework 5.2, this method will not register the task if the
+//	 * {@code expression} is equal to {@link #CRON_DISABLED}.
+//	 */
+//	public void addCronTask(Runnable task, String expression) {
+//		if (!CRON_DISABLED.equals(expression)) {
+//			addCronTask(new CronTask(task, expression));
+//		}
+//	}
 
 	/**
 	 * Add a {@link CronTask}.
@@ -473,12 +467,10 @@ public class TimedTaskRegistrar implements ScheduledTaskHolder, InitializingBean
 		if (this.taskScheduler != null) {
 			if (task.getInitialDelay() > 0) {
 				Date startTime = new Date(this.taskScheduler.getClock().millis() + task.getInitialDelay());
-				scheduledTask.future =
-						this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), startTime, task.getInterval());
+				scheduledTask.future = this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), startTime, task.getInterval());
 			}
 			else {
-				scheduledTask.future =
-						this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), task.getInterval());
+				scheduledTask.future = this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), task.getInterval());
 			}
 		}
 		else {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mee.timed.test;
+package com.mee.timed.test.job;
 
 import com.mee.timed.annotation.MeeTimed;
 import com.mee.timed.annotation.MeeTimeds;
@@ -26,19 +26,19 @@ public class ScheduledTasks {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTasks.class);
 
     @MeeTimeds({
-            @MeeTimed(fixedRate = 10000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S" ),
-            @MeeTimed(fixedDelay = 8000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S" ),
+            @MeeTimed(fixedRate = 10000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S",lockName = "T1"),
+            @MeeTimed(fixedDelay = 8000,lockAtLeastFor = "PT5S",lockAtMostFor ="PT5S",lockName = "T2"),
     })
     public void exec01() {
         LOGGER.info("=====> [exec01] Already Executed! <=====");
     }
 
-    @MeeTimed(cron = "0 */2 * * * *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+    @MeeTimed(cron = "0/2 * * * * ?",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
     public void exec02() {
         LOGGER.info("=====> [exec02] Already Executed! <=====");
     }
 
-    @MeeTimed(cron = "*/20 * * * * *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+    @MeeTimed(cron = "0/20 * * * * ?",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
     public void exec03() {
         LOGGER.info("=====> [exec03] Already Executed! <=====");
     }

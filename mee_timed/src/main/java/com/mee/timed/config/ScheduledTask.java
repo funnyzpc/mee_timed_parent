@@ -3,10 +3,7 @@ package com.mee.timed.config;
 
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.config.FixedDelayTask;
-import org.springframework.scheduling.config.FixedRateTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.scheduling.config.Task;
 
 import java.util.concurrent.ScheduledFuture;
 

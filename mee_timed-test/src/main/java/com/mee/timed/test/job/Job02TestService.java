@@ -1,4 +1,4 @@
-package com.mee.timed.test;
+package com.mee.timed.test.job;
 
 import com.mee.timed.Job;
 import com.mee.timed.JobExecutionContext;
@@ -24,22 +24,24 @@ public class Job02TestService implements Job {
         LOGGER.info("=====> [Job01] Already Executed! <=====");
     }
 
-    @MeeTimed(cron = "0 */2 * * * *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+//    @MeeTimed(cron = "0/2 * * * * ?",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+//    @MeeTimed(cron = "0 0 0 L-2 * ? *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+    @MeeTimed(cron = "0 * * * * ? *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
     public void exec02() throws InterruptedException {
         LOGGER.info("=====> [Job02] Already Executed! <=====");
         TimeUnit.SECONDS.sleep(10);
     }
 
-    @MeeTimed(cron = "*/20 * * * * *",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
+    @MeeTimed(cron = "0/20 * * * * ?",lockAtLeastFor = "PT1M",lockAtMostFor ="PT1M" )
     public void exec03() throws InterruptedException {
         TimeUnit.SECONDS.sleep(5);
         LOGGER.info("=====> [Job03] Already Executed! <=====");
     }
 
     @MeeTimeds({
-         @MeeTimed(cron = "10,20,30,40,50 * * * * *",lockAtMostFor ="PT5S",lockName = "t1"),
-         @MeeTimed(cron = "0 */3 * * * *",lockAtMostFor ="PT1M",lockName = "t2"),
-         @MeeTimed(cron = "0 */6 * * * *",lockAtMostFor ="PT1M",lockName = "t3")
+         @MeeTimed(cron = "10,20,30,40,50 * * * * ?",lockAtMostFor ="PT5S",lockName = "t1"),
+         @MeeTimed(cron = "0/3 * * * * ?",lockAtMostFor ="PT1M",lockName = "t2"),
+         @MeeTimed(cron = "0/6 * * * * ?",lockAtMostFor ="PT1M",lockName = "t3")
     })
     @Override
     public void execute(JobExecutionContext context) {

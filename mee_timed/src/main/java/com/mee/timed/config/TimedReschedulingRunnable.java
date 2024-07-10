@@ -1,8 +1,7 @@
 package com.mee.timed.config;
 
+import com.mee.timed.Trigger;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ErrorHandler;
 

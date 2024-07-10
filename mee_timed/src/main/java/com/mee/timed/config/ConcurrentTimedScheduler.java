@@ -1,10 +1,10 @@
 
 package com.mee.timed.config;
 
+import com.mee.timed.Trigger;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
