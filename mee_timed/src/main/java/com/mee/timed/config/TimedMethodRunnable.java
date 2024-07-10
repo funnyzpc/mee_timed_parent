@@ -106,7 +106,7 @@ public class TimedMethodRunnable implements Runnable {
 				LOGGER.debug("获取到缓存key:{}",lockConfiguration.getName());
 			}else{
 				this.lockConfiguration = new WeakReference<>(lockConfiguration=this.getLockConfiguration(annotation,mth));
-				LOGGER.error("写入到缓存key:{}",lockConfiguration.getName());
+				LOGGER.debug("写入到缓存key:{}",lockConfiguration.getName());
 			}
 			// 获取锁
 			Optional<SimpleLock> lock = lockProvider.lock(lockConfiguration);

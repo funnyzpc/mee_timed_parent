@@ -90,7 +90,7 @@ public class PostgresJdbcTemplateLockProviderIntegrationTest extends AbstractJdb
                     .build());
 
                 LockConfiguration.initProperties("shedlock-provider-jdbc-template");
-                provider.lock(new LockConfiguration("timezone_test", lockUntil));
+                provider.lock(new LockConfiguration(lockUntil,"timezone_test",Duration.ofSeconds(1),Duration.ofSeconds(1)));
                 new JdbcTemplate(datasource).query("SELECT * FROM SYS_SHEDLOCK_JOB where APPLICATION='shedlock-provider-jdbc-template' and name='timezone_test'", rs -> {
                     Timestamp timestamp = rs.getTimestamp("lock_until");
                     assertThat(timestamp.getTimezoneOffset()).isEqualTo(7 * 60);
