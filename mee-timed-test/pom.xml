@@ -9,7 +9,7 @@
         <version>1.0.1</version>
     </parent>
 
-    <artifactId>mee_timed-test</artifactId>
+    <artifactId>mee-timed-test</artifactId>
     <version>1.0.1</version>
     <packaging>jar</packaging>
 
@@ -37,8 +37,9 @@
             <version>${spring-boot-current.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.mee.timed</groupId>
-            <artifactId>mee_timed</artifactId>
+<!--            <groupId>com.mee.timed</groupId>-->
+            <groupId>io.github.funnyzpc</groupId>
+            <artifactId>mee-timed</artifactId>
             <version>1.0.1</version>
 <!--            <scope>system</scope>-->
 <!--            <systemPath>${project.basedir}/../mee_timed/target/mee_timed-${project.version}.jar</systemPath>-->

@@ -16,8 +16,8 @@
         </developer>
     </developers>
     <modules>
-        <module>mee_timed</module>
-        <module>mee_timed-test</module>
+        <module>mee-timed</module>
+        <module>mee-timed-test</module>
 
         <!-- shedlock -->
         <module>shedlock/shedlock-core</module>
