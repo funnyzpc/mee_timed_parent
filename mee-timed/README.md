@@ -26,11 +26,9 @@ mee_timed在本质上升级了cron表达式的复杂性(改为quartz的cron表�
 + 2.POM中定义dependency依赖：
 ```xml
         <dependency>
-            <groupId>com.mee.timed</groupId>
-            <artifactId>mee_timed</artifactId>
+            <groupId>io.github.funnyzpc</groupId>
+            <artifactId>mee-timed</artifactId>
             <version>1.0.1</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/src/main/resources/lib/mee_timed-1.0.1.jar</systemPath>
         </dependency>
 ```
 + 3.导入sql表
