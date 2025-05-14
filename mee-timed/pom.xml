@@ -3,15 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
+<!--    <parent>
         <groupId>com.mee</groupId>
         <artifactId>mee_timed_parent</artifactId>
         <version>1.0.1</version>
-    </parent>
+    </parent>-->
 <!--    <groupId>com.mee.timed</groupId>-->
     <groupId>io.github.funnyzpc</groupId>
     <artifactId>mee-timed</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <description>spring schedular+shedlock 二开</description>
