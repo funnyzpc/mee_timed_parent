@@ -1,4 +1,3 @@
-
 ## package
 
 package gpg:sign -Dmaven.test.skip=true -Dspring.version=5.3.22 -Dspring-boot-current.version=2.7.3 -Dslf4j.version=1.7.36 -pl mee-timed
